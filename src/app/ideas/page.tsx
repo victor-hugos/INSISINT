@@ -1,5 +1,5 @@
-import { AuthGuard } from "@/components/auth-guard";
-import { IdeasPanel } from "@/components/ideas-panel";
+import { AuthGuard } from "@/components/auth/auth-guard";
+import { IdeasPanel } from "@/components/modules/ideas-panel";
 
 const wrapperStyle: React.CSSProperties = {
   minHeight: "100vh",

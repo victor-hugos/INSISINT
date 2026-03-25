@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { AuthGuard } from "@/components/auth-guard";
-import { UICard } from "@/components/ui-card";
+import { AuthGuard } from "@/components/auth/auth-guard";
+import { UICard } from "@/components/ui/ui-card";
 
 type Lead = {
   id: string;
@@ -12,8 +12,14 @@ type Lead = {
   niche?: string | null;
   pain?: string | null;
   goal?: string | null;
+  source?: string | null;
+  notes?: string | null;
   status: "new" | "contacted" | "approved" | "converted" | "rejected";
   created_at: string;
+  contacted_at?: string | null;
+  approved_at?: string | null;
+  converted_at?: string | null;
+  rejected_at?: string | null;
 };
 
 const shellStyle: React.CSSProperties = {
@@ -46,6 +52,10 @@ export default function PilotLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "new" | "contacted" | "approved" | "converted" | "rejected"
+  >("all");
 
   useEffect(() => {
     void loadLeads();
@@ -101,6 +111,29 @@ export default function PilotLeadsPage() {
     }
   }
 
+  const filteredLeads = leads.filter((lead) => {
+    const matchesStatus = statusFilter === "all" || lead.status === statusFilter;
+    const searchValue = query.trim().toLowerCase();
+
+    if (!searchValue) {
+      return matchesStatus;
+    }
+
+    const haystack = [
+      lead.name,
+      lead.instagram,
+      lead.niche,
+      lead.goal,
+      lead.pain,
+      lead.source,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return matchesStatus && haystack.includes(searchValue);
+  });
+
   return (
     <AuthGuard>
       <div style={shellStyle}>
@@ -118,6 +151,49 @@ export default function PilotLeadsPage() {
           </p>
         </UICard>
 
+        <UICard title="Filtro e busca">
+          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "2fr 1fr" }}>
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar por nome, nicho, Instagram ou objetivo"
+              style={{
+                borderRadius: 14,
+                border: "1px solid var(--border)",
+                padding: "12px 14px",
+                background: "rgba(255,255,255,0.82)",
+              }}
+            />
+            <select
+              value={statusFilter}
+              onChange={(event) =>
+                setStatusFilter(
+                  event.target.value as
+                    | "all"
+                    | "new"
+                    | "contacted"
+                    | "approved"
+                    | "converted"
+                    | "rejected"
+                )
+              }
+              style={{
+                borderRadius: 14,
+                border: "1px solid var(--border)",
+                padding: "12px 14px",
+                background: "rgba(255,255,255,0.82)",
+              }}
+            >
+              <option value="all">Todos os status</option>
+              <option value="new">Novo</option>
+              <option value="contacted">Contatado</option>
+              <option value="approved">Aprovado</option>
+              <option value="converted">Convertido</option>
+              <option value="rejected">Rejeitado</option>
+            </select>
+          </div>
+        </UICard>
+
         {error ? (
           <UICard title="Erro">
             <p style={{ margin: 0, color: "#8a2f12" }}>{error}</p>
@@ -127,19 +203,35 @@ export default function PilotLeadsPage() {
         <UICard title="Interessados">
           {loading ? (
             <p style={{ margin: 0 }}>Carregando leads...</p>
-          ) : leads.length === 0 ? (
+          ) : filteredLeads.length === 0 ? (
             <p style={{ margin: 0 }}>Nenhuma aplicacao recebida ainda.</p>
           ) : (
             <div style={{ display: "grid", gap: 12 }}>
-              {leads.map((lead) => (
+              {filteredLeads.map((lead) => (
                 <div key={lead.id} style={leadCardStyle}>
                   <p><strong>Nome:</strong> {lead.name}</p>
                   <p><strong>Instagram:</strong> {lead.instagram || "-"}</p>
                   <p><strong>Nicho:</strong> {lead.niche || "-"}</p>
                   <p><strong>Dor:</strong> {lead.pain || "-"}</p>
                   <p><strong>Objetivo:</strong> {lead.goal || "-"}</p>
+                  <p><strong>Origem:</strong> {lead.source || "-"}</p>
                   <p><strong>Status:</strong> {lead.status}</p>
                   <p><strong>Recebido em:</strong> {lead.created_at}</p>
+                  {lead.contacted_at ? (
+                    <p><strong>Contatado em:</strong> {lead.contacted_at}</p>
+                  ) : null}
+                  {lead.approved_at ? (
+                    <p><strong>Aprovado em:</strong> {lead.approved_at}</p>
+                  ) : null}
+                  {lead.converted_at ? (
+                    <p><strong>Convertido em:</strong> {lead.converted_at}</p>
+                  ) : null}
+                  {lead.rejected_at ? (
+                    <p><strong>Rejeitado em:</strong> {lead.rejected_at}</p>
+                  ) : null}
+                  {lead.notes ? (
+                    <p><strong>Notas:</strong> {lead.notes}</p>
+                  ) : null}
 
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <button type="button" onClick={() => updateStatus(lead.id, "contacted")} style={buttonStyle}>

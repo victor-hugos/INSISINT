@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { IDEA_CATEGORIES, IDEA_STATUSES } from "@/lib/constants";
+import { IDEA_CATEGORIES, IDEA_STATUSES } from "@/lib/config/constants";
 
 export const ideaCategorySchema = z.enum(IDEA_CATEGORIES);
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { getSupabaseServer } from "@/lib/db/supabase-server";
 
 const schema = z.object({
   name: z.string().min(2),
@@ -11,6 +11,7 @@ const schema = z.object({
   frequency: z.string().optional(),
   goal: z.string().optional(),
   feedback: z.string().optional(),
+  source: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -28,6 +29,7 @@ export async function POST(req: Request) {
         frequency: parsed.frequency,
         goal: parsed.goal,
         feedback: parsed.feedback,
+        source: parsed.source || "pilot_landing",
         status: "new",
       })
       .select("*")

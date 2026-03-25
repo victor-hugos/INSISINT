@@ -1,6 +1,6 @@
-import { AuthGuard } from "@/components/auth-guard";
-import { OnboardingForm } from "@/components/onboarding-form";
-import { UICard } from "@/components/ui-card";
+import { AuthGuard } from "@/components/auth/auth-guard";
+import { OnboardingForm } from "@/components/modules/onboarding-form";
+import { UICard } from "@/components/ui/ui-card";
 
 const wrapperStyle: React.CSSProperties = {
   minHeight: "100vh",

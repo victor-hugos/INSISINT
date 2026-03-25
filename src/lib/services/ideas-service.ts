@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api-client";
+import { apiRequest } from "@/lib/utils/api-client";
 import type { ContentIdea, IdeasResult, IdeaStatus } from "@/types/ideas";
 import type { ScriptResult } from "@/types/scripts";
 

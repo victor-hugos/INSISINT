@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { requireAuthenticatedUser } from "@/lib/server-auth";
-import { getUserDbClient } from "@/lib/server-db-user";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
 
 export async function GET(req: Request) {
   try {

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { requireProfileOwnership } from "@/lib/auth/require-profile-ownership";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
 
 const schema = z.object({
-  userId: z.string().min(1),
   profileId: z.string().min(1),
   keyword: z.string().min(1),
   replyMessage: z.string().min(1),
@@ -12,14 +13,20 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const supabaseServer = getSupabaseServer();
+    const user = await requireAuthenticatedUser();
+    const supabase = await getUserDbClient();
     const body = await req.json();
     const parsed = schema.parse(body);
 
-    const { data, error } = await supabaseServer
+    await requireProfileOwnership({
+      userId: user.id,
+      profileId: parsed.profileId,
+    });
+
+    const { data, error } = await supabase
       .from("automation_rules")
       .insert({
-        user_id: parsed.userId,
+        user_id: user.id,
         profile_id: parsed.profileId,
         platform: "instagram",
         trigger_type: "comment_keyword",
@@ -51,22 +58,27 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    const supabaseServer = getSupabaseServer();
+    const user = await requireAuthenticatedUser();
+    const supabase = await getUserDbClient();
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
     const profileId = searchParams.get("profileId");
 
-    if (!userId || !profileId) {
+    if (!profileId) {
       return NextResponse.json(
-        { error: "userId e profileId sao obrigatorios." },
+        { error: "profileId e obrigatorio." },
         { status: 400 }
       );
     }
 
-    const { data, error } = await supabaseServer
+    await requireProfileOwnership({
+      userId: user.id,
+      profileId,
+    });
+
+    const { data, error } = await supabase
       .from("automation_rules")
       .select("*")
-      .eq("user_id", userId)
+      .eq("user_id", user.id)
       .eq("profile_id", profileId)
       .eq("platform", "instagram")
       .order("created_at", { ascending: false });

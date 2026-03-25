@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { requireAuthenticatedUser } from "@/lib/server-auth";
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { requireAdminUser } from "@/lib/auth/server-admin";
+import { getSupabaseServer } from "@/lib/db/supabase-server";
+import { getErrorStatus } from "@/lib/utils/app-error";
 
 const schema = z.object({
   leadId: z.string().min(1),
@@ -11,16 +12,35 @@ const schema = z.object({
 
 export async function PATCH(req: Request) {
   try {
-    await requireAuthenticatedUser();
+    await requireAdminUser();
 
     const body = await req.json();
     const parsed = schema.parse(body);
+    const now = new Date().toISOString();
+    const updates: Record<string, string | null> = {
+      status: parsed.status,
+      updated_at: now,
+    };
+
+    if (parsed.status === "contacted") {
+      updates.contacted_at = now;
+    }
+
+    if (parsed.status === "approved") {
+      updates.approved_at = now;
+    }
+
+    if (parsed.status === "converted") {
+      updates.converted_at = now;
+    }
+
+    if (parsed.status === "rejected") {
+      updates.rejected_at = now;
+    }
 
     const { data, error } = await getSupabaseServer()
       .from("pilot_leads")
-      .update({
-        status: parsed.status,
-      })
+      .update(updates)
       .eq("id", parsed.leadId)
       .select("*")
       .single();
@@ -38,7 +58,7 @@ export async function PATCH(req: Request) {
       {
         error: error instanceof Error ? error.message : "Erro ao atualizar lead.",
       },
-      { status: 400 }
+      { status: getErrorStatus(error, 400) }
     );
   }
 }

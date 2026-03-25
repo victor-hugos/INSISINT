@@ -1,5 +1,5 @@
-import { AuthGuard } from "@/components/auth-guard";
-import { AutomationMonitorPanel } from "@/components/automation-monitor-panel";
+import { AuthGuard } from "@/components/auth/auth-guard";
+import { AutomationMonitorPanel } from "@/components/modules/automation-monitor-panel";
 
 const shellStyle: React.CSSProperties = {
   minHeight: "100vh",

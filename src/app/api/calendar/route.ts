@@ -1,25 +1,34 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+
 import { generateCalendar } from "@/lib/agents/calendar";
-import { getSupabaseServer } from "@/lib/supabase-server";
-import { getCurrentWeekKey } from "@/lib/week-key";
+import { requireProfileOwnership } from "@/lib/auth/require-profile-ownership";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
+import { getCurrentWeekKey } from "@/lib/utils/week-key";
 import { onboardingSchema } from "@/types/onboarding";
 
-const calendarSchema = onboardingSchema.extend({
+const calendarSchema = onboardingSchema.omit({ userId: true }).extend({
   profileId: z.string().min(1),
 });
 
 export async function POST(req: Request) {
   try {
-    const supabaseServer = getSupabaseServer();
+    const user = await requireAuthenticatedUser();
+    const supabase = await getUserDbClient();
     const body = await req.json();
     const parsed = calendarSchema.parse(body);
     const weekKey = getCurrentWeekKey();
 
-    const { data: selectedIdeaLinks, error: selectedIdeasError } = await supabaseServer
+    await requireProfileOwnership({
+      userId: user.id,
+      profileId: parsed.profileId,
+    });
+
+    const { data: selectedIdeaLinks, error: selectedIdeasError } = await supabase
       .from("weekly_plan_ideas")
       .select("idea_id")
-      .eq("user_id", parsed.userId)
+      .eq("user_id", user.id)
       .eq("profile_id", parsed.profileId)
       .eq("week_key", weekKey);
 
@@ -43,10 +52,10 @@ export async function POST(req: Request) {
     }> = [];
 
     if (selectedIdeaIds.length > 0) {
-      const { data: selectedIdeas, error: ideasError } = await supabaseServer
+      const { data: selectedIdeas, error: ideasError } = await supabase
         .from("content_ideas")
         .select("category, title, hook, description, status")
-        .eq("user_id", parsed.userId)
+        .eq("user_id", user.id)
         .eq("profile_id", parsed.profileId)
         .in("id", selectedIdeaIds)
         .eq("status", "approved");
@@ -64,10 +73,10 @@ export async function POST(req: Request) {
       ideas = selectedIdeas || [];
     }
 
-    const result = await generateCalendar(parsed, ideas || []);
+    const result = await generateCalendar({ ...parsed, userId: user.id }, ideas || []);
 
     const rows = result.items.map((item) => ({
-      user_id: parsed.userId,
+      user_id: user.id,
       profile_id: parsed.profileId,
       day_of_week: item.dayOfWeek,
       category: item.category,
@@ -78,7 +87,7 @@ export async function POST(req: Request) {
       source_idea_title: item.sourceIdeaTitle || null,
     }));
 
-    const { error } = await supabaseServer.from("content_calendar").insert(rows);
+    const { error } = await supabase.from("content_calendar").insert(rows);
 
     if (error) {
       return NextResponse.json(

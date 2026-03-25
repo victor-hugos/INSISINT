@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api-client";
+import { apiRequest } from "@/lib/utils/api-client";
 import type { ProfileContext } from "@/types/profile";
 
 export async function fetchProfileContext(profileId: string) {

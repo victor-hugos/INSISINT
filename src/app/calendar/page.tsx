@@ -1,5 +1,5 @@
-import { AuthGuard } from "@/components/auth-guard";
-import { CalendarPanel } from "@/components/calendar-panel";
+import { AuthGuard } from "@/components/auth/auth-guard";
+import { CalendarPanel } from "@/components/modules/calendar-panel";
 
 const wrapperStyle: React.CSSProperties = {
   minHeight: "100vh",

@@ -1,28 +1,29 @@
 import { NextResponse } from "next/server";
 
-import { getSupabaseServer } from "@/lib/supabase-server";
-import { getCurrentWeekKey } from "@/lib/week-key";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
+import { getCurrentWeekKey } from "@/lib/utils/week-key";
 
 export async function GET(req: Request) {
   try {
-    const supabaseServer = getSupabaseServer();
+    const user = await requireAuthenticatedUser();
+    const supabase = await getUserDbClient();
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
     const profileId = searchParams.get("profileId");
 
-    if (!userId || !profileId) {
+    if (!profileId) {
       return NextResponse.json(
-        { error: "userId e profileId sao obrigatorios." },
+        { error: "profileId e obrigatorio." },
         { status: 400 }
       );
     }
 
     const weekKey = getCurrentWeekKey();
 
-    const { data, error } = await supabaseServer
+    const { data, error } = await supabase
       .from("weekly_plan_ideas")
       .select("idea_id")
-      .eq("user_id", userId)
+      .eq("user_id", user.id)
       .eq("profile_id", profileId)
       .eq("week_key", weekKey);
 

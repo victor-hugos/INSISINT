@@ -156,9 +156,37 @@ create table if not exists pilot_leads (
   frequency text,
   goal text,
   feedback text,
+  source text default 'pilot_landing',
+  notes text,
   status text not null default 'new',
+  contacted_at timestamptz,
+  approved_at timestamptz,
+  converted_at timestamptz,
+  rejected_at timestamptz,
+  updated_at timestamptz default now(),
   created_at timestamptz default now()
 );
+
+alter table pilot_leads
+add column if not exists source text default 'pilot_landing';
+
+alter table pilot_leads
+add column if not exists notes text;
+
+alter table pilot_leads
+add column if not exists contacted_at timestamptz;
+
+alter table pilot_leads
+add column if not exists approved_at timestamptz;
+
+alter table pilot_leads
+add column if not exists converted_at timestamptz;
+
+alter table pilot_leads
+add column if not exists rejected_at timestamptz;
+
+alter table pilot_leads
+add column if not exists updated_at timestamptz default now();
 
 alter table profiles enable row level security;
 alter table diagnoses enable row level security;
@@ -170,6 +198,7 @@ alter table weekly_plan_ideas enable row level security;
 alter table automation_rules enable row level security;
 alter table automation_events enable row level security;
 alter table automation_actions enable row level security;
+alter table pilot_leads enable row level security;
 
 drop policy if exists "profiles_select_own" on profiles;
 drop policy if exists "profiles_insert_own" on profiles;
@@ -431,6 +460,14 @@ on automation_actions
 for delete
 using (auth.uid()::text = user_id);
 
+drop policy if exists "pilot_leads_no_access" on pilot_leads;
+
+create policy "pilot_leads_no_access"
+on pilot_leads
+for all
+using (false)
+with check (false);
+
 create index if not exists idx_profiles_user_id on profiles(user_id);
 create index if not exists idx_diagnoses_user_id on diagnoses(user_id);
 create index if not exists idx_content_ideas_user_id on content_ideas(user_id);
@@ -446,3 +483,5 @@ create index if not exists idx_weekly_plan_ideas_profile_id on weekly_plan_ideas
 create index if not exists idx_automation_rules_user_id on automation_rules(user_id);
 create index if not exists idx_automation_events_user_id on automation_events(user_id);
 create index if not exists idx_automation_actions_user_id on automation_actions(user_id);
+create index if not exists idx_pilot_leads_status on pilot_leads(status);
+create index if not exists idx_pilot_leads_created_at on pilot_leads(created_at desc);

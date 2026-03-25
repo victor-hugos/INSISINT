@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { UICard } from "@/components/ui-card";
+import { UICard } from "@/components/ui/ui-card";
 
 const shellStyle: React.CSSProperties = {
   maxWidth: 920,

@@ -50,6 +50,7 @@ export default function PilotApplyPage() {
     frequency: "",
     goal: "",
     feedback: "sim",
+    source: "pilot_landing",
   });
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { getSupabaseServer } from "@/lib/db/supabase-server";
 
 const VERIFY_TOKEN = process.env.INSTAGRAM_WEBHOOK_VERIFY_TOKEN;
 const DEMO_PROFILE_ID = process.env.DEMO_PROFILE_ID;

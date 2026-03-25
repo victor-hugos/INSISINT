@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const automationRuleSchema = z.object({
   id: z.string().optional(),
-  userId: z.string().min(1),
   profileId: z.string().min(1),
   platform: z.literal("instagram"),
   triggerType: z.literal("comment_keyword"),

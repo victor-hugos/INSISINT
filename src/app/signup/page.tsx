@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { tryCreateSupabaseBrowserClient } from "@/lib/db/supabase-browser";
 
 const shellStyle: React.CSSProperties = {
   maxWidth: 440,
@@ -43,7 +43,7 @@ const buttonStyle: React.CSSProperties = {
 };
 
 export default function SignupPage() {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const supabase = useMemo(() => tryCreateSupabaseBrowserClient(), []);
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,6 +53,12 @@ export default function SignupPage() {
 
   async function handleSignup(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!supabase) {
+      setError("Supabase nao configurado neste ambiente.");
+      return;
+    }
+
     setLoading(true);
     setMessage(null);
     setError(null);
@@ -106,6 +112,11 @@ export default function SignupPage() {
           {loading ? "Criando..." : "Criar conta"}
         </button>
 
+        {!supabase ? (
+          <p style={{ margin: 0, color: "#8a2f12" }}>
+            Configure NEXT_PUBLIC_SUPABASE_URL e a chave publica do Supabase para usar o cadastro.
+          </p>
+        ) : null}
         {error ? <p style={{ margin: 0, color: "#8a2f12" }}>{error}</p> : null}
         {message ? <p style={{ margin: 0, color: "var(--muted)" }}>{message}</p> : null}
       </form>

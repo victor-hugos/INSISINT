@@ -1,5 +1,5 @@
-import { AuthGuard } from "@/components/auth-guard";
-import { WeeklyPlanPanel } from "@/components/weekly-plan-panel";
+import { AuthGuard } from "@/components/auth/auth-guard";
+import { WeeklyPlanPanel } from "@/components/modules/weekly-plan-panel";
 
 const shellStyle: React.CSSProperties = {
   minHeight: "100vh",

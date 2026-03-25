@@ -1,4 +1,4 @@
-import { getOpenAIClient } from "@/lib/openai";
+import { getOpenAIClient } from "@/lib/ai/openai";
 import type { OnboardingInput } from "@/types/onboarding";
 import { ideasResultSchema, type IdeasResult } from "@/types/ideas";
 

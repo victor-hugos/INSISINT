@@ -1,5 +1,5 @@
-import { AuthGuard } from "@/components/auth-guard";
-import { AnalyticsPanel } from "@/components/analytics-panel";
+import { AuthGuard } from "@/components/auth/auth-guard";
+import { AnalyticsPanel } from "@/components/modules/analytics-panel";
 
 const shellStyle: React.CSSProperties = {
   minHeight: "100vh",

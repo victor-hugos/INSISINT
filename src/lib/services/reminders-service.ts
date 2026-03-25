@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api-client";
+import { apiRequest } from "@/lib/utils/api-client";
 
 export type ReminderApiItem = {
   id: string;
@@ -27,7 +27,6 @@ export async function listReminders(profileId: string) {
 
 export async function completeReminderRequest(payload: {
   reminderId: string;
-  userId: string;
   profileId: string;
 }) {
   return apiRequest<{ reminder: ReminderApiItem }>("/api/reminders/complete", {

@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { generateDiagnosis } from "@/lib/agents/diagnosis";
-import { requireProfileOwnership } from "@/lib/require-profile-ownership";
-import { requireAuthenticatedUser } from "@/lib/server-auth";
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { requireProfileOwnership } from "@/lib/auth/require-profile-ownership";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
 import { diagnosisRequestSchema } from "@/types/onboarding";
 
 export async function POST(req: Request) {
   try {
     const user = await requireAuthenticatedUser();
-    const supabaseServer = getSupabaseServer();
+    const supabase = await getUserDbClient();
     const body = await req.json();
     const parsed = diagnosisRequestSchema.omit({ userId: true }).parse(body);
 
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       userId: user.id,
     });
 
-    const { error } = await supabaseServer.from("diagnoses").insert({
+    const { error } = await supabase.from("diagnoses").insert({
       user_id: user.id,
       profile_id: parsed.profileId,
       result,

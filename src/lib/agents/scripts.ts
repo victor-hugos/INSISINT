@@ -1,4 +1,4 @@
-import { getOpenAIClient } from "@/lib/openai";
+import { getOpenAIClient } from "@/lib/ai/openai";
 import { scriptResultSchema, type ScriptInput, type ScriptResult } from "@/types/scripts";
 
 function extractJson(raw: string) {

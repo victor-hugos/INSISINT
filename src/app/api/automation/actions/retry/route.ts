@@ -1,25 +1,32 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { requireProfileOwnership } from "@/lib/auth/require-profile-ownership";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
 
 const schema = z.object({
   actionId: z.string().min(1),
-  userId: z.string().min(1),
   profileId: z.string().min(1),
 });
 
 export async function PATCH(req: Request) {
   try {
-    const supabaseServer = getSupabaseServer();
+    const user = await requireAuthenticatedUser();
+    const supabase = await getUserDbClient();
     const body = await req.json();
     const parsed = schema.parse(body);
 
-    const { data: existing, error: findError } = await supabaseServer
+    await requireProfileOwnership({
+      userId: user.id,
+      profileId: parsed.profileId,
+    });
+
+    const { data: existing, error: findError } = await supabase
       .from("automation_actions")
       .select("*")
       .eq("id", parsed.actionId)
-      .eq("user_id", parsed.userId)
+      .eq("user_id", user.id)
       .eq("profile_id", parsed.profileId)
       .single();
 
@@ -30,7 +37,7 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const { data, error } = await supabaseServer
+    const { data, error } = await supabase
       .from("automation_actions")
       .update({
         status: "pending",

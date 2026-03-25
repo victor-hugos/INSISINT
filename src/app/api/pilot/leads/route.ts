@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { requireAuthenticatedUser } from "@/lib/server-auth";
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { requireAdminUser } from "@/lib/auth/server-admin";
+import { getSupabaseServer } from "@/lib/db/supabase-server";
+import { getErrorStatus } from "@/lib/utils/app-error";
 
 export async function GET() {
   try {
-    await requireAuthenticatedUser();
+    await requireAdminUser();
 
     const { data, error } = await getSupabaseServer()
       .from("pilot_leads")
@@ -25,7 +26,7 @@ export async function GET() {
       {
         error: error instanceof Error ? error.message : "Erro ao carregar leads.",
       },
-      { status: 401 }
+      { status: getErrorStatus(error, 401) }
     );
   }
 }

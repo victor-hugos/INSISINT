@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { requireProfileOwnership } from "@/lib/require-profile-ownership";
-import { requireAuthenticatedUser } from "@/lib/server-auth";
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { requireProfileOwnership } from "@/lib/auth/require-profile-ownership";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
 
 const updateIdeaStatusSchema = z.object({
   ideaId: z.string().min(1),
@@ -14,6 +14,7 @@ const updateIdeaStatusSchema = z.object({
 export async function PATCH(req: Request) {
   try {
     const user = await requireAuthenticatedUser();
+    const supabase = await getUserDbClient();
     const body = await req.json();
     const parsed = updateIdeaStatusSchema.parse(body);
 
@@ -22,7 +23,7 @@ export async function PATCH(req: Request) {
       profileId: parsed.profileId,
     });
 
-    const { data, error } = await getSupabaseServer()
+    const { data, error } = await supabase
       .from("content_ideas")
       .update({
         status: parsed.status,

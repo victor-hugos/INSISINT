@@ -15,6 +15,7 @@ organizarem conteudo semanal com ajuda de IA.
 2. Copie `.env.example` para `.env.local` e preencha as chaves.
 3. Rode o SQL de `supabase/schema.sql` no seu projeto Supabase.
 4. Inicie com `npm run dev`.
+5. Rode `npm run test` para validar os utilitarios principais.
 
 ## Variaveis do Supabase
 
@@ -90,6 +91,7 @@ Stack recomendada:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `OPENAI_API_KEY`
 - `NEXT_PUBLIC_SITE_URL`
+- `ADMIN_EMAILS` para restringir painel de leads e execucao administrativa
 
 ### Variaveis opcionais para automacao
 
@@ -107,12 +109,17 @@ Inclua em Redirect URLs:
 
 Consulte tambem `DEPLOY_CHECKLIST.md` para o roteiro completo de deploy e validacao.
 
+### Health-check
+
+O projeto expoe `GET /api/health` para conferencias operacionais basicas de ambiente.
+
 ## Piloto comercial
 
 O projeto ja inclui uma base simples para captacao inicial:
 
 - `/pilot` para apresentar a proposta do piloto
 - `/pilot/apply` para aplicar ao piloto
+- `/pilot/leads` para acompanhar interessados, restrito a e-mails em `ADMIN_EMAILS`
 
 Posicionamento sugerido:
 

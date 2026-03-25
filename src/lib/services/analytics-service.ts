@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api-client";
+import { apiRequest } from "@/lib/utils/api-client";
 import type { AnalyticsData } from "@/types/analytics";
 
 export async function fetchAnalytics(profileId: string) {

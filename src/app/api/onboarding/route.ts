@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
-import { requireAuthenticatedUser } from "@/lib/server-auth";
-import { getSupabaseServer } from "@/lib/supabase-server";
+
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
 import { onboardingSchema } from "@/types/onboarding";
 
 export async function POST(req: Request) {
   try {
     const user = await requireAuthenticatedUser();
-    const supabaseServer = getSupabaseServer();
+    const supabase = await getUserDbClient();
     const body = await req.json();
     const parsed = onboardingSchema.omit({ userId: true }).parse(body);
 
-    const { data, error } = await supabaseServer
+    const { data, error } = await supabase
       .from("profiles")
       .insert({
         user_id: user.id,

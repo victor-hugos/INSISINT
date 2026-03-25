@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/api-client";
+import { apiRequest } from "@/lib/utils/api-client";
 import type { DashboardData, ProgressData } from "@/types/dashboard";
 
 export async function fetchDashboard(profileId: string) {

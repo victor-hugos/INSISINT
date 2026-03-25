@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server";
-import { getSupabaseServer } from "@/lib/supabase-server";
+
+import { requireProfileOwnership } from "@/lib/auth/require-profile-ownership";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
 import { reminderInputSchema } from "@/types/reminders";
 
 export async function POST(req: Request) {
   try {
-    const supabaseServer = getSupabaseServer();
+    const user = await requireAuthenticatedUser();
+    const supabase = await getUserDbClient();
     const body = await req.json();
     const parsed = reminderInputSchema.parse(body);
+
+    await requireProfileOwnership({
+      userId: user.id,
+      profileId: parsed.profileId,
+    });
 
     const scheduledFor = new Date(parsed.scheduledFor);
 
@@ -17,10 +26,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const { data, error } = await supabaseServer
+    const { data, error } = await supabase
       .from("reminders")
       .insert({
-        user_id: parsed.userId,
+        user_id: user.id,
         profile_id: parsed.profileId,
         title: parsed.title,
         description: parsed.description,

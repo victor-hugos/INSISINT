@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { AppShell } from "@/components/app-shell";
-import { AuthProvider } from "@/components/auth-provider";
-import { ProfileProvider } from "@/components/profile-provider";
+import { AuthProvider } from "@/components/auth/auth-provider";
+import { AppShell } from "@/components/layout/app-shell";
+import { ProfileProvider } from "@/components/profile/profile-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {

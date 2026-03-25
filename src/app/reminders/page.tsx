@@ -1,5 +1,5 @@
-import { AuthGuard } from "@/components/auth-guard";
-import { RemindersPanel } from "@/components/reminders-panel";
+import { AuthGuard } from "@/components/auth/auth-guard";
+import { RemindersPanel } from "@/components/modules/reminders-panel";
 
 const wrapperStyle: React.CSSProperties = {
   minHeight: "100vh",

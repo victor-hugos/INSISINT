@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 
+import { requireAdminUser } from "@/lib/auth/server-admin";
+import { getSupabaseServer } from "@/lib/db/supabase-server";
+import { getErrorStatus } from "@/lib/utils/app-error";
 import { sendInstagramPrivateReply } from "@/lib/instagram/send-private-reply";
-import { getSupabaseServer } from "@/lib/supabase-server";
 
 export async function POST() {
   try {
+    await requireAdminUser();
+
     const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
 
     if (!accessToken) {
@@ -84,7 +88,7 @@ export async function POST() {
         error: "Erro ao executar acoes automaticas.",
         details: error instanceof Error ? error.message : "Erro desconhecido",
       },
-      { status: 500 }
+      { status: getErrorStatus(error, 500) }
     );
   }
 }

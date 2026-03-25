@@ -1,22 +1,29 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { requireProfileOwnership } from "@/lib/auth/require-profile-ownership";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
 
 const schema = z.object({
   reminderId: z.string().min(1),
-  userId: z.string().min(1),
   profileId: z.string().min(1),
 });
 
 export async function PATCH(req: Request) {
   try {
-    const supabaseServer = getSupabaseServer();
+    const user = await requireAuthenticatedUser();
+    const supabase = await getUserDbClient();
     const body = await req.json();
     const parsed = schema.parse(body);
     const now = new Date().toISOString();
 
-    const { data, error } = await supabaseServer
+    await requireProfileOwnership({
+      userId: user.id,
+      profileId: parsed.profileId,
+    });
+
+    const { data, error } = await supabase
       .from("reminders")
       .update({
         status: "completed",
@@ -24,7 +31,7 @@ export async function PATCH(req: Request) {
         updated_at: now,
       })
       .eq("id", parsed.reminderId)
-      .eq("user_id", parsed.userId)
+      .eq("user_id", user.id)
       .eq("profile_id", parsed.profileId)
       .select("*")
       .single();

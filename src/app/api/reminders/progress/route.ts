@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { getCurrentWeekRange } from "@/lib/calendar-reminder-time";
-import { getUserDbClient } from "@/lib/server-db-user";
-import { requireAuthenticatedUser } from "@/lib/server-auth";
-import { getCurrentWeekKey } from "@/lib/week-key";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
+import { getCurrentWeekRange } from "@/lib/utils/calendar-reminder-time";
+import { getCurrentWeekKey } from "@/lib/utils/week-key";
 
 export async function GET(req: Request) {
   try {

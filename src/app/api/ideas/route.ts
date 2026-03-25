@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { generateIdeas } from "@/lib/agents/ideas";
-import { requireProfileOwnership } from "@/lib/require-profile-ownership";
-import { requireAuthenticatedUser } from "@/lib/server-auth";
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { requireProfileOwnership } from "@/lib/auth/require-profile-ownership";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
 
 const ideasSchema = z.object({
   profileId: z.string().min(1),
@@ -19,7 +19,7 @@ const ideasSchema = z.object({
 export async function POST(req: Request) {
   try {
     const user = await requireAuthenticatedUser();
-    const supabaseServer = getSupabaseServer();
+    const supabase = await getUserDbClient();
     const body = await req.json();
     const parsed = ideasSchema.parse(body);
 
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       status: "generated",
     }));
 
-    const { error } = await supabaseServer.from("content_ideas").insert(rows);
+    const { error } = await supabase.from("content_ideas").insert(rows);
 
     if (error) {
       return NextResponse.json(

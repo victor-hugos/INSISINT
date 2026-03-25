@@ -1,30 +1,37 @@
 import { NextResponse } from "next/server";
 
-import { getSupabaseServer } from "@/lib/supabase-server";
+import { requireProfileOwnership } from "@/lib/auth/require-profile-ownership";
+import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
+import { getUserDbClient } from "@/lib/db/server-db-user";
 
 export async function GET(req: Request) {
   try {
-    const supabaseServer = getSupabaseServer();
+    const user = await requireAuthenticatedUser();
+    const supabase = await getUserDbClient();
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
     const profileId = searchParams.get("profileId");
 
-    if (!userId || !profileId) {
+    if (!profileId) {
       return NextResponse.json(
-        { error: "userId e profileId sao obrigatorios." },
+        { error: "profileId e obrigatorio." },
         { status: 400 }
       );
     }
 
+    await requireProfileOwnership({
+      userId: user.id,
+      profileId,
+    });
+
     const [eventsRes, actionsRes] = await Promise.all([
-      supabaseServer
+      supabase
         .from("automation_events")
         .select("*")
-        .eq("user_id", userId)
+        .eq("user_id", user.id)
         .eq("profile_id", profileId)
         .order("created_at", { ascending: false })
         .limit(50),
-      supabaseServer
+      supabase
         .from("automation_actions")
         .select(
           `
@@ -43,7 +50,7 @@ export async function GET(req: Request) {
           )
         `
         )
-        .eq("user_id", userId)
+        .eq("user_id", user.id)
         .eq("profile_id", profileId)
         .order("created_at", { ascending: false })
         .limit(50),
