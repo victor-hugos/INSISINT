@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useActiveProfile } from "@/components/profile/profile-provider";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { getErrorMessage } from "@/lib/utils/get-error-message";
 import { getReminderStatusLabel } from "@/lib/utils/labels";
 import {
@@ -198,6 +200,10 @@ export function RemindersPanel() {
     <div style={shellStyle}>
 
       <form onSubmit={createReminder} style={cardStyle}>
+        <div style={{ display: "grid", gap: 6, marginBottom: 18 }}>
+          <p style={{ margin: 0, color: "var(--muted)" }}>Execucao da semana</p>
+          <strong>Crie lembretes manuais ou acompanhe os que vieram do calendario.</strong>
+        </div>
         <div style={gridStyle}>
           <label style={labelStyle}>
             Titulo do lembrete
@@ -289,10 +295,8 @@ export function RemindersPanel() {
           </button>
         </div>
 
-        {error ? <p style={{ color: "#8a2f12", marginTop: 16 }}>{error}</p> : null}
-        {success ? (
-          <p style={{ color: "#2f6f3e", marginTop: 16 }}>{success}</p>
-        ) : null}
+        {error ? <FeedbackBanner message={error} tone="error" /> : null}
+        {success ? <FeedbackBanner message={success} tone="success" /> : null}
       </form>
 
       <section style={cardStyle}>
@@ -302,6 +306,8 @@ export function RemindersPanel() {
             <p style={{ color: "var(--muted)", margin: 0 }}>
               Nenhum lembrete carregado ainda.
             </p>
+          ) : fetching ? (
+            <div className="skeleton" style={{ height: 220, borderRadius: 20 }} />
           ) : (
             reminders.map((reminder) => (
               <article
@@ -313,7 +319,28 @@ export function RemindersPanel() {
                   background: "rgba(255,255,255,0.65)",
                 }}
               >
-                <h3 style={{ marginTop: 0 }}>{reminder.title}</h3>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "start",
+                    gap: 12,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <h3 style={{ marginTop: 0 }}>{reminder.title}</h3>
+                  <StatusBadge
+                    tone={
+                      reminder.status === "completed"
+                        ? "success"
+                        : reminder.status === "pending"
+                          ? "warning"
+                          : "neutral"
+                    }
+                  >
+                    {getReminderStatusLabel(reminder.status)}
+                  </StatusBadge>
+                </div>
                 <p>
                   <strong>Tipo:</strong> {reminder.reminder_type}
                 </p>
@@ -332,9 +359,6 @@ export function RemindersPanel() {
                     <strong>Concluido em:</strong> {reminder.completed_at}
                   </p>
                 ) : null}
-                <p style={{ marginBottom: 0 }}>
-                  <strong>Status:</strong> {getReminderStatusLabel(reminder.status)}
-                </p>
                 <div style={{ marginTop: 14 }}>
                   <button
                     type="button"

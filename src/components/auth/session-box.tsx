@@ -14,8 +14,8 @@ const boxStyle: React.CSSProperties = {
 };
 
 const linkStyle: React.CSSProperties = {
-  padding: "10px 12px",
-  borderRadius: 12,
+  padding: "11px 13px",
+  borderRadius: 14,
   border: "1px solid var(--border)",
   fontWeight: 700,
   textAlign: "center",
@@ -36,12 +36,39 @@ export function SessionBox() {
   const { user, loading, signOut } = useAuth();
 
   if (loading) {
-    return <p style={{ margin: 0, color: "var(--muted)" }}>Carregando sessao...</p>;
+    return (
+      <div style={boxStyle}>
+        <div
+          className="skeleton"
+          style={{ height: 14, width: "45%", borderRadius: 999 }}
+        />
+        <div
+          className="skeleton"
+          style={{ height: 18, width: "80%", borderRadius: 999 }}
+        />
+        <div
+          className="skeleton"
+          style={{ height: 42, width: "100%", borderRadius: 14 }}
+        />
+      </div>
+    );
   }
 
   if (!user) {
     return (
       <div style={boxStyle}>
+        <p
+          style={{
+            margin: 0,
+            color: "var(--accent-strong)",
+            fontSize: "0.78rem",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            fontWeight: 700,
+          }}
+        >
+          Conta
+        </p>
         <p style={{ margin: 0, color: "var(--muted)" }}>
           Entre para salvar perfis e separar seus dados por conta.
         </p>
@@ -58,7 +85,16 @@ export function SessionBox() {
   return (
     <div style={boxStyle}>
       <div style={{ display: "grid", gap: 4 }}>
-        <p style={{ margin: 0, color: "var(--muted)", fontSize: "0.9rem" }}>
+        <p
+          style={{
+            margin: 0,
+            color: "var(--accent-strong)",
+            fontSize: "0.78rem",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            fontWeight: 700,
+          }}
+        >
           Sessao ativa
         </p>
         <p style={{ margin: 0, fontWeight: 700, wordBreak: "break-word" }}>

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useActiveProfile } from "@/components/profile/profile-provider";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { getErrorMessage } from "@/lib/utils/get-error-message";
 import { getIdeaStatusLabel } from "@/lib/utils/labels";
 import {
@@ -211,20 +213,34 @@ export function IdeasPanel() {
     <div style={shellStyle}>
 
       <form onSubmit={handleGenerateIdeas} style={cardStyle}>
-        <button
-          type="submit"
-          disabled={loadingIdeas}
-          style={buttonStyle}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            gap: 12,
+            alignItems: "center",
+          }}
         >
-          {loadingIdeas ? "Gerando ideias..." : "Gerar ideias com perfil ativo"}
-        </button>
-        {error ? <p style={{ color: "#8a2f12", marginBottom: 0 }}>{error}</p> : null}
+          <div style={{ display: "grid", gap: 6 }}>
+            <p style={{ margin: 0, color: "var(--muted)" }}>Geracao guiada</p>
+            <strong>Crie uma nova leva de ideias com base no perfil ativo.</strong>
+          </div>
+          <button
+            type="submit"
+            disabled={loadingIdeas}
+            style={buttonStyle}
+          >
+            {loadingIdeas ? "Gerando ideias..." : "Gerar ideias com perfil ativo"}
+          </button>
+        </div>
+        {error ? <FeedbackBanner message={error} tone="error" /> : null}
       </form>
 
       <section style={cardStyle}>
         <h2 style={{ marginTop: 0 }}>Ideias salvas</h2>
         {loadingSavedIdeas ? (
-          <p>Carregando ideias salvas...</p>
+          <div className="skeleton" style={{ height: 220, borderRadius: 20 }} />
         ) : savedIdeas.length === 0 ? (
           <p>Nenhuma ideia salva ainda.</p>
         ) : (
@@ -258,16 +274,17 @@ export function IdeasPanel() {
                         }}
                       >
                         <div>
-                          <p
-                            style={{
-                              marginTop: 0,
-                              marginBottom: 10,
-                              fontWeight: 700,
-                              color: statusMeta.color,
-                            }}
+                          <StatusBadge
+                            tone={
+                              idea.status === "approved"
+                                ? "success"
+                                : idea.status === "rejected"
+                                  ? "danger"
+                                  : "warning"
+                            }
                           >
-                            Status: {statusMeta.label}
-                          </p>
+                            {statusMeta.label}
+                          </StatusBadge>
                           <h4 style={{ marginTop: 0 }}>{idea.title}</h4>
                           <p>
                             <strong>Hook:</strong> {idea.hook}
@@ -349,7 +366,7 @@ export function IdeasPanel() {
       {result ? (
         <section style={cardStyle}>
           <h2 style={{ marginTop: 0 }}>Ultima geracao</h2>
-          <p style={{ marginBottom: 0 }}>
+          <p style={{ marginBottom: 0, color: "var(--muted)" }}>
             As ideias geradas ja foram salvas acima e podem ser aprovadas ou rejeitadas.
           </p>
         </section>

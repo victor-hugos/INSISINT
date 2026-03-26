@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useActiveProfile } from "@/components/profile/profile-provider";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 type AutomationEvent = {
   id: string;
@@ -175,6 +177,10 @@ export function AutomationMonitorPanel() {
       ) : (
         <>
           <section style={cardStyle}>
+            <div style={{ display: "grid", gap: 6, marginBottom: 14 }}>
+              <p style={{ margin: 0, color: "var(--muted)" }}>Monitor operacional</p>
+              <strong>Acompanhe eventos, respostas enviadas e falhas de automacao.</strong>
+            </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button type="button" onClick={loadLogs} disabled={loading} style={buttonStyle}>
                 {loading ? "Atualizando..." : "Atualizar logs"}
@@ -196,13 +202,15 @@ export function AutomationMonitorPanel() {
               </select>
             </div>
 
-            {error ? <p style={{ color: "#8a2f12", marginBottom: 0 }}>{error}</p> : null}
+            {error ? <FeedbackBanner message={error} tone="error" /> : null}
           </section>
 
           <section style={cardStyle}>
             <h2 style={{ marginTop: 0 }}>Eventos recebidos</h2>
 
-            {events.length === 0 ? (
+            {loading && events.length === 0 ? (
+              <div className="skeleton" style={{ height: 220, borderRadius: 20 }} />
+            ) : events.length === 0 ? (
               <p style={{ margin: 0 }}>Nenhum evento recebido ainda.</p>
             ) : (
               <div style={{ display: "grid", gap: 12 }}>
@@ -216,6 +224,12 @@ export function AutomationMonitorPanel() {
                       background: "rgba(255,255,255,0.65)",
                     }}
                   >
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                      <StatusBadge tone="accent">{event.event_type}</StatusBadge>
+                      <StatusBadge tone={event.matched_rule_id ? "success" : "neutral"}>
+                        {event.matched_rule_id ? "Regra encontrada" : "Sem regra"}
+                      </StatusBadge>
+                    </div>
                     <p><strong>Tipo:</strong> {event.event_type}</p>
                     <p><strong>Comentario:</strong> {event.comment_text || "-"}</p>
                     <p><strong>Comment ID:</strong> {event.external_comment_id || "-"}</p>
@@ -231,7 +245,9 @@ export function AutomationMonitorPanel() {
           <section style={cardStyle}>
             <h2 style={{ marginTop: 0 }}>Acoes automaticas</h2>
 
-            {filteredActions.length === 0 ? (
+            {loading && filteredActions.length === 0 ? (
+              <div className="skeleton" style={{ height: 220, borderRadius: 20 }} />
+            ) : filteredActions.length === 0 ? (
               <p style={{ margin: 0 }}>Nenhuma acao encontrada para esse filtro.</p>
             ) : (
               <div style={{ display: "grid", gap: 12 }}>
@@ -245,6 +261,20 @@ export function AutomationMonitorPanel() {
                       background: "rgba(255,255,255,0.65)",
                     }}
                   >
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                      <StatusBadge
+                        tone={
+                          action.status === "sent"
+                            ? "success"
+                            : action.status === "failed"
+                              ? "danger"
+                              : "warning"
+                        }
+                      >
+                        {action.status}
+                      </StatusBadge>
+                      <StatusBadge tone="accent">{action.action_type}</StatusBadge>
+                    </div>
                     <p><strong>Status:</strong> {action.status}</p>
                     <p><strong>Tipo:</strong> {action.action_type}</p>
                     <p><strong>Keyword:</strong> {action.automation_rules?.keyword || "-"}</p>

@@ -83,7 +83,7 @@ export default function SignupPage() {
   }
 
   return (
-    <main style={shellStyle}>
+    <main className="public-auth-shell" style={shellStyle}>
       <div>
         <h1 style={{ marginBottom: 8 }}>Criar conta</h1>
         <p style={{ margin: 0, color: "var(--muted)" }}>

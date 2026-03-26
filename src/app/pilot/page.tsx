@@ -37,7 +37,7 @@ export default function PilotPage() {
     <div style={shellStyle}>
       <section style={heroStyle}>
         <p style={{ margin: 0, color: "var(--accent-strong)", fontWeight: 700 }}>
-          Piloto Creator Copilot
+          Piloto INSISINT
         </p>
         <h1 style={{ margin: 0 }}>Sua equipe de social media com IA</h1>
         <p style={{ margin: 0, maxWidth: 680, color: "var(--muted)" }}>

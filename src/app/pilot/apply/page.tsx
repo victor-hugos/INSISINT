@@ -83,7 +83,7 @@ export default function PilotApplyPage() {
 
   if (sent) {
     return (
-      <div style={shellStyle}>
+      <div className="public-form-shell" style={shellStyle}>
         <section style={cardStyle}>
           <h1 style={{ margin: 0 }}>Aplicacao enviada</h1>
           <p style={{ margin: 0, color: "var(--muted)" }}>
@@ -95,7 +95,7 @@ export default function PilotApplyPage() {
   }
 
   return (
-    <div style={shellStyle}>
+    <div className="public-form-shell" style={shellStyle}>
       <div>
         <h1 style={{ marginBottom: 8 }}>Aplicar para o piloto</h1>
         <p style={{ margin: 0, color: "var(--muted)" }}>

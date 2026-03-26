@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useActiveProfile } from "@/components/profile/profile-provider";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { getErrorMessage } from "@/lib/utils/get-error-message";
 import {
   fetchDashboard,
@@ -129,6 +131,14 @@ export function DashboardPanel() {
       ]
     : [];
 
+  const approvedIdeasCount = data?.ideasSummary
+    ? data.ideasSummary.filter((item) => item.status === "approved").length
+    : 0;
+
+  const sentAutomationCount = data?.automation
+    ? data.automation.filter((item) => item.status === "sent").length
+    : 0;
+
   return (
     !profile ? (
       <EmptyState
@@ -141,11 +151,38 @@ export function DashboardPanel() {
     <div style={shellStyle}>
 
       <section style={cardStyle}>
-        <button onClick={loadDashboard} disabled={loading} style={buttonStyle}>
-          {loading ? "Carregando..." : "Carregar dashboard do perfil ativo"}
-        </button>
-        {error ? <p style={{ color: "#8a2f12", marginBottom: 0 }}>{error}</p> : null}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            gap: 12,
+            alignItems: "center",
+          }}
+        >
+          <div style={{ display: "grid", gap: 6 }}>
+            <p style={{ margin: 0, color: "var(--muted)" }}>Sincronizacao</p>
+            <strong>Atualize o painel para refletir a operacao mais recente.</strong>
+          </div>
+          <button onClick={loadDashboard} disabled={loading} style={buttonStyle}>
+            {loading ? "Carregando..." : "Atualizar dashboard"}
+          </button>
+        </div>
+        {error ? <FeedbackBanner message={error} tone="error" /> : null}
       </section>
+
+      {loading ? (
+        <section
+          style={{
+            display: "grid",
+            gap: 18,
+          }}
+        >
+          <div className="skeleton" style={{ height: 180, borderRadius: 24 }} />
+          <div className="skeleton" style={{ height: 260, borderRadius: 24 }} />
+          <div className="skeleton" style={{ height: 320, borderRadius: 24 }} />
+        </section>
+      ) : null}
 
       {data ? (
         <>
@@ -224,6 +261,18 @@ export function DashboardPanel() {
                   <strong style={{ fontSize: "1.9rem" }}>{metric.value}</strong>
                 </article>
               ))}
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                flexWrap: "wrap",
+                marginTop: 18,
+              }}
+            >
+              <StatusBadge tone="success">{approvedIdeasCount} ideias aprovadas</StatusBadge>
+              <StatusBadge tone="accent">{sentAutomationCount} automacoes enviadas</StatusBadge>
             </div>
           </section>
 
@@ -381,6 +430,7 @@ export function DashboardPanel() {
                 <div style={{ display: "grid", gap: 12 }}>
                   {data.calendar.map((item) => (
                     <article key={item.id} style={metricCardStyle}>
+                      <StatusBadge tone="accent">{item.content_type}</StatusBadge>
                       <h4 style={{ marginTop: 0, marginBottom: 8 }}>
                         {item.day_of_week} - {item.title}
                       </h4>
@@ -408,6 +458,13 @@ export function DashboardPanel() {
                 <div style={{ display: "grid", gap: 12 }}>
                   {data.reminders.map((reminder) => (
                     <article key={reminder.id} style={metricCardStyle}>
+                      <StatusBadge
+                        tone={
+                          reminder.status === "completed" ? "success" : "warning"
+                        }
+                      >
+                        {reminder.status}
+                      </StatusBadge>
                       <h4 style={{ marginTop: 0, marginBottom: 8 }}>
                         {reminder.title}
                       </h4>

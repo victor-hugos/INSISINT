@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useActiveProfile } from "@/components/profile/profile-provider";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { ContentIdea } from "@/types/ideas";
 
 const shellStyle: React.CSSProperties = {
@@ -165,13 +167,31 @@ export function WeeklyPlanPanel() {
 
       {weekKey ? (
         <section style={cardStyle}>
-          <strong>Semana ativa:</strong> {weekKey}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "grid", gap: 6 }}>
+              <p style={{ margin: 0, color: "var(--muted)" }}>Semana ativa</p>
+              <strong>{weekKey}</strong>
+            </div>
+            <StatusBadge tone="accent">{selectedIds.length} ideia(s) selecionada(s)</StatusBadge>
+          </div>
         </section>
       ) : null}
 
       <section style={cardStyle}>
+        <div style={{ display: "grid", gap: 6, marginBottom: 18 }}>
+          <p style={{ margin: 0, color: "var(--muted)" }}>Curadoria semanal</p>
+          <strong>Escolha apenas as ideias aprovadas que entram no foco desta semana.</strong>
+        </div>
         {loadingIdeas ? (
-          <p style={{ margin: 0 }}>Carregando ideias aprovadas...</p>
+          <div className="skeleton" style={{ height: 220, borderRadius: 20 }} />
         ) : ideas.length === 0 ? (
           <p style={{ margin: 0 }}>Nenhuma ideia aprovada disponivel para esta semana.</p>
         ) : (
@@ -198,6 +218,7 @@ export function WeeklyPlanPanel() {
                       onChange={() => idea.id && toggleIdea(idea.id)}
                     />
                     <div>
+                      <StatusBadge tone="success">Aprovada</StatusBadge>
                       <p style={{ marginTop: 0 }}>
                         <strong>Categoria:</strong> {idea.category}
                       </p>
@@ -216,9 +237,9 @@ export function WeeklyPlanPanel() {
               <button type="button" onClick={saveSelection} disabled={saving} style={buttonStyle}>
                 {saving ? "Salvando..." : "Salvar ideias da semana"}
               </button>
-              {error ? <p style={{ color: "#8a2f12", margin: 0 }}>{error}</p> : null}
+              {error ? <FeedbackBanner message={error} tone="error" /> : null}
               {successMessage ? (
-                <p style={{ color: "#256245", margin: 0 }}>{successMessage}</p>
+                <FeedbackBanner message={successMessage} tone="success" />
               ) : null}
             </div>
           </>

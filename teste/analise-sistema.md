@@ -1,387 +1,618 @@
-# ANALISE DO SISTEMA APOS A EXECUCAO DAS MELHORIAS
+# ANALISE ATUAL DO SISTEMA - 2026-03-26
 
 ## RESUMO EXECUTIVO
 
-Esta analise foi refeita depois da execucao pratica das melhorias no sistema.
+Esta verificacao foi refeita do zero com foco em:
 
-## O QUE FOI FEITO
+- qualidade tecnica
+- testes
+- usabilidade
+- seguranca
+- operacao real de MVP
 
-1. Endurecimento de backend e ownership nas rotas restantes do fluxo principal.
-2. Reducao forte da dependencia de `userId` vindo do frontend.
-3. Migracao de varias leituras e escritas para o client autenticado do usuario.
-4. Criacao de camada administrativa para leads e execucoes sensiveis.
-5. Inclusao de `health-check` operacional.
-6. Melhoria da resiliencia do client de API e do bootstrap de auth no browser.
-7. Correcao de logica de datas em lembretes.
-8. Melhorias de UX com carregamentos automaticos em areas-chave.
-9. Evolucao da estrutura de leads no banco e no painel.
-10. Inclusao de testes automatizados minimos.
-11. Validacao final com:
-   - `npm run typecheck`
-   - `npm run lint`
-   - `npm run test`
-   - `npm run build`
+### Evidencias validadas nesta rodada
+
+- `npm run typecheck` -> OK
+- `npm run lint` -> OK
+- `npm run test` -> OK
+- `npm run build` -> OK
+
+### Estado geral atual
+
+O sistema esta em um ponto bom de MVP funcional e demonstravel.
+
+Ele ja entrega:
+
+- autenticacao real com Supabase
+- onboarding por usuario
+- geracao e aprovacao de ideias
+- selecao semanal
+- calendario
+- lembretes
+- dashboard
+- landing de piloto
+- captacao de leads
+- painel interno de leads
+
+Ao mesmo tempo, ainda existem lacunas importantes para evolucao profissional:
+
+- cobertura de testes ainda baixa fora de utilitarios
+- pouca automacao de QA de fluxos reais
+- varias mensagens e estados ainda dependem de interpretacao do usuario
+- modelagem ainda usa `user_id` como `text`
+- operacao em producao ainda exige disciplina manual de ambiente
+
+### Maturidade estimada por area
+
+| Area | Percentual atual |
+|---|---:|
+| Produto / fluxo principal | 90% |
+| UX / usabilidade | 82% |
+| Frontend / organizacao | 86% |
+| Backend / APIs | 87% |
+| Seguranca / ownership | 85% |
+| Banco / modelagem | 81% |
+| Testes / qualidade | 74% |
+| Deploy / operacao | 80% |
+| Comercial / captacao | 84% |
+| Automacoes Instagram | 66% |
+
+### Nota geral estimada
+
+**83%**
 
 ---
 
-## MATURIDADE ATUAL ESTIMADA
-
-| Área | Antes | Depois |
-|---|---:|---:|
-| Produto / Fluxo principal | 90% | 91% |
-| UX / Clareza de navegação | 82% | 85% |
-| Frontend / Componentização | 80% | 83% |
-| Backend / APIs | 74% | 87% |
-| Segurança / Ownership / RLS | 68% | 84% |
-| Banco de dados / modelagem | 79% | 85% |
-| Analytics / Dashboard | 76% | 78% |
-| Automações Instagram | 58% | 68% |
-| Captação comercial / leads | 73% | 84% |
-| Deploy / operação | 65% | 79% |
-| Testes / qualidade | 40% | 72% |
-
-### Maturidade geral estimada agora: **84%**
-
----
-
-## 1. SEGURANCA / OWNERSHIP / RLS
-
-### Percentual atual: **84%**
+## 1. ARQUITETURA GERAL
 
 ## PROBLEMA
 
-Antes, parte importante do sistema ainda confiava em `userId` enviado pelo frontend.
-
-Isso deixava os fluxos com seguranca desigual:
-
-- reminders
-- calendar
-- weekly plan
-- automacoes
-
-Tambem havia risco administrativo no painel de leads, porque qualquer usuario autenticado poderia consultar esses dados.
+Projetos que crescem por etapas tendem a ficar desorganizados, com logica espalhada, imports inconsistentes e responsabilidades misturadas.
 
 ## SOLUCAO
 
-### O que foi implementado
+### O que foi encontrado de positivo
 
-1. Rotas endurecidas para usar sessao autenticada:
-   - `src/app/api/reminders/route.ts`
-   - `src/app/api/reminders/complete/route.ts`
-   - `src/app/api/weekly-plan/current/route.ts`
-   - `src/app/api/weekly-plan/select-ideas/route.ts`
-   - `src/app/api/calendar/route.ts`
-   - `src/app/api/calendar/generate-reminders/route.ts`
-   - `src/app/api/automation/rules/route.ts`
-   - `src/app/api/automation/logs/route.ts`
-   - `src/app/api/automation/actions/retry/route.ts`
+1. A base esta organizada por dominio:
+   - `src/components/auth`
+   - `src/components/profile`
+   - `src/components/layout`
+   - `src/components/ui`
+   - `src/components/modules`
+   - `src/lib/auth`
+   - `src/lib/db`
+   - `src/lib/config`
+   - `src/lib/utils`
+   - `src/lib/services`
 
-2. Varias rotas de escrita passaram a usar `getUserDbClient()` em vez de `service role`:
-   - onboarding
-   - diagnosis
-   - ideas
-   - ideas/status
-   - scripts
-   - ideas/generate-script
-   - reminders
-   - weekly plan
-   - calendar
-   - automation rules
+2. Existe uma separacao razoavel entre:
+   - UI
+   - services
+   - auth server-side
+   - acesso ao Supabase
+   - utilitarios
 
-3. Foi adicionada validacao extra para impedir que o plano semanal aceite ideias aprovadas de outro perfil/usuario.
+3. A organizacao atual ja suporta crescimento sem parecer projeto improvisado.
 
-4. Foi criada uma camada administrativa:
-   - `src/lib/server-admin.ts`
-   - leitura e atualizacao de leads agora exigem admin
-   - execucao de automacoes pendentes tambem exige admin
+### Risco atual
 
-5. Foi criada estrutura de erro com status:
-   - `src/lib/app-error.ts`
-   - `src/lib/server-auth.ts`
-   - `src/lib/require-profile-ownership.ts`
+A arquitetura esta boa para MVP, mas ainda existe um pouco de acoplamento entre:
 
-6. O banco foi endurecido para `pilot_leads`:
-   - RLS habilitado
-   - policy de bloqueio por padrao
+- componentes de tela e fetch
+- componentes de tela e regras de negocio
+- rotas de API com agregacoes grandes
 
-### Resultado
+### Passo a passo recomendado
 
-- o backend passou a confiar muito menos no cliente
-- ownership ficou muito mais consistente
-- areas administrativas deixaram de ser abertas para qualquer usuario autenticado
-
----
-
-## 2. BACKEND / APIS
-
-### Percentual atual: **87%**
-
-## PROBLEMA
-
-As APIs estavam boas funcionalmente, mas havia assimetria de padrao.
-
-## SOLUCAO
-
-### O que foi implementado
-
-1. Padrao reforcado de fluxo server-side:
-   - autentica usuario
-   - valida ownership do perfil
-   - usa client autenticado sempre que possivel
-
-2. Remocao de `userId` das rotas de uso normal em:
-   - weekly plan
-   - reminders
-   - calendar
-   - automations
-
-3. Melhor tratamento comum de erro:
-   - `src/lib/api-client.ts` agora trata melhor respostas nao-JSON
-
-4. Nova rota operacional:
-   - `src/app/api/health/route.ts`
-
-### Resultado
-
-- backend mais previsivel
-- menos superficie de abuso
-- melhor operacao e diagnstico rapido de ambiente
-
----
-
-## 3. FRONTEND / FLUXO DE DADOS
-
-### Percentual atual: **83%**
-
-## PROBLEMA
-
-O frontend ainda enviava `userId` em partes importantes e exigia carregamento manual em alguns pontos.
-
-## SOLUCAO
-
-### O que foi implementado
-
-1. Componentes ajustados para parar de enviar `userId` onde ja nao faz sentido:
-   - `src/components/reminders-panel.tsx`
-   - `src/components/calendar-panel.tsx`
-   - `src/components/weekly-plan-panel.tsx`
-   - `src/components/automation-panel.tsx`
-   - `src/components/automation-monitor-panel.tsx`
-   - `src/components/analytics-panel.tsx`
-   - `src/components/dashboard-panel.tsx`
-
-2. Carregamento automatico adicionado em areas chave:
+1. Manter essa estrutura por dominio.
+2. Evitar voltar a criar componentes soltos em `src/components` sem pasta de contexto.
+3. Em proximos ciclos, extrair hooks de dados para:
    - dashboard
    - reminders
-
-3. Services ajustados:
-   - `src/lib/services/reminders-service.ts`
-
-### Resultado
-
-- menos acoplamento entre frontend e identidade do usuario
-- menos clique manual para ver dado importante
-- melhor coerencia entre UI e seguranca do backend
+   - ideas
+   - pilot leads
 
 ---
 
-## 4. AUTH / AMBIENTE / RESILIENCIA
-
-### Percentual atual: **82%**
+## 2. FLUXO PRINCIPAL DO PRODUTO
 
 ## PROBLEMA
 
-O build e o runtime podiam quebrar mais facilmente quando as envs do Supabase nao estavam configuradas.
+Um MVP pode ter muitas features, mas o que realmente importa e se o fluxo principal esta claro e executavel do inicio ao fim.
 
 ## SOLUCAO
 
-### O que foi implementado
+### O que foi validado
 
-1. `src/lib/env.ts` ganhou leitura opcional de env publica.
-2. `src/lib/supabase-browser.ts` ganhou `tryCreateSupabaseBrowserClient()`.
-3. `src/components/auth-provider.tsx` foi ajustado para nao explodir quando a env publica nao existe.
-4. `src/app/login/page.tsx` e `src/app/signup/page.tsx` agora mostram erro mais claro se Supabase publico nao estiver configurado.
-5. Foi adicionada rota de health-check:
-   - `GET /api/health`
+O fluxo principal do produto esta coerente:
 
-### Resultado
+1. login/signup
+2. onboarding
+3. geracao de ideias
+4. aprovacao de ideias
+5. selecao semanal
+6. calendario
+7. lembretes
+8. dashboard
 
-- menos fragilidade em bootstrap
-- melhor diagnostico de configuracao
-- mais chance de detectar erro de deploy cedo
+### Pontos fortes
+
+1. O produto tem narrativa operacional clara.
+2. O dashboard consolida bem a historia do uso.
+3. O onboarding empurra o usuario para a proxima etapa.
+4. O sistema parece mais produto do que conjunto de rotas.
+
+### Pontos fracos
+
+1. O dashboard ainda sugere uma proxima acao fixa, nao realmente contextual.
+2. O usuario ainda precisa entender sozinho algumas relacoes entre:
+   - ideias aprovadas
+   - plano semanal
+   - calendario
+   - lembretes
+
+### Passo a passo recomendado
+
+1. Tornar a proxima acao realmente dinamica.
+2. Mostrar no dashboard quantos itens faltam para completar o fluxo da semana.
+3. Exibir avisos de vazio mais orientados:
+   - "voce ainda nao aprovou ideias"
+   - "voce ainda nao montou seu calendario"
+   - "voce ainda nao gerou lembretes da semana"
 
 ---
 
-## 5. BANCO DE DADOS / LEADS / CRM
-
-### Percentual atual: **85%**
+## 3. USABILIDADE E EXPERIENCIA
 
 ## PROBLEMA
 
-O fluxo de leads era funcional, mas ainda muito simples para operacao.
+Usabilidade boa nao e apenas tela bonita. Ela depende de:
+
+- clareza
+- feedback
+- carga cognitiva baixa
+- fluxo previsivel
 
 ## SOLUCAO
 
-### O que foi implementado
+### O que foi encontrado de positivo
 
-1. `pilot_leads` recebeu evolucao estrutural em `supabase/schema.sql`:
-   - `source`
-   - `notes`
-   - `contacted_at`
-   - `approved_at`
-   - `converted_at`
-   - `rejected_at`
-   - `updated_at`
+1. Existe shell global com navegacao consistente:
+   - [app-shell.tsx](c:/Users/zello/Desktop/INSTASOCIAL/src/components/layout/app-shell.tsx)
 
-2. Indices novos para leads:
-   - status
-   - created_at
+2. Existem estados vazios reutilizaveis:
+   - [empty-state.tsx](c:/Users/zello/Desktop/INSTASOCIAL/src/components/ui/empty-state.tsx)
 
-3. `src/app/api/pilot/apply/route.ts` passou a salvar `source`.
+3. O login e o signup mostram mensagens claras quando o ambiente esta mal configurado:
+   - [page.tsx](c:/Users/zello/Desktop/INSTASOCIAL/src/app/login/page.tsx)
+   - [page.tsx](c:/Users/zello/Desktop/INSTASOCIAL/src/app/signup/page.tsx)
 
-4. `src/app/api/pilot/leads/status/route.ts` agora atualiza timestamps de status automaticamente.
+4. O onboarding tem orientacao de proximos passos:
+   - [onboarding-form.tsx](c:/Users/zello/Desktop/INSTASOCIAL/src/components/modules/onboarding-form.tsx)
 
-5. `src/app/pilot/leads/page.tsx` recebeu:
-   - busca
-   - filtro por status
-   - visualizacao de origem
-   - visualizacao de timestamps
+5. O dashboard tem boa densidade de informacao sem ficar totalmente cru:
+   - [dashboard-panel.tsx](c:/Users/zello/Desktop/INSTASOCIAL/src/components/modules/dashboard-panel.tsx)
 
-### Resultado
+### Pontos de melhoria reais
 
-- CRM de leads deixou de ser apenas lista
-- agora existe no minimo um pipeline operacional
+1. Algumas telas ainda exigem leitura demais para acao simples.
+2. Algumas listas poderiam ter hierarquia visual melhor:
+   - ideias
+   - lembretes
+   - dashboard
+
+3. Faltam microestados mais amigaveis:
+   - skeleton
+   - badges visuais fortes
+   - confirmacoes mais claras de sucesso
+
+4. O texto ainda alterna entre linguagem de sistema e linguagem comercial.
+
+### Passo a passo recomendado
+
+1. Padronizar uma linguagem unica:
+   - direta
+   - operacional
+   - orientada a proxima acao
+
+2. Criar componentes pequenos para:
+   - badge de status
+   - toast de sucesso/erro
+   - metric card
+
+3. Reduzir a quantidade de texto por card nas telas de uso frequente.
+4. Priorizar o que precisa ser decidido primeiro em cada pagina.
 
 ---
 
-## 6. UX / EXPERIENCIA
-
-### Percentual atual: **85%**
+## 4. FRONTEND E COMPONENTIZACAO
 
 ## PROBLEMA
 
-A UX estava boa para MVP, mas ainda havia pontos de friccao operacionais.
+Mesmo com boa organizacao, frontends podem acumular componentes grandes demais e com logica misturada.
 
 ## SOLUCAO
 
-### O que foi implementado
+### O que foi encontrado
 
-1. Dashboard agora pode carregar automaticamente ao trocar perfil ativo.
-2. Reminders agora carregam automaticamente ao trocar perfil.
-3. Login e signup lidam melhor com ambiente mal configurado.
-4. Painel de leads ficou mais util para uso real.
+1. Os componentes estao organizados por contexto.
+2. Existem utilitarios compartilhados para:
+   - labels
+   - erros
+   - constants
+   - services
 
-### Resultado
+3. A base atual esta legivel.
 
-- menos sensacao de “sistema manual”
-- mais fluidez no dia a dia
+### Ponto de atencao
+
+Alguns paineis ainda estao grandes e fazem muitas coisas ao mesmo tempo:
+
+- [dashboard-panel.tsx](c:/Users/zello/Desktop/INSTASOCIAL/src/components/modules/dashboard-panel.tsx)
+- [ideas-panel.tsx](c:/Users/zello/Desktop/INSTASOCIAL/src/components/modules/ideas-panel.tsx)
+- [reminders-panel.tsx](c:/Users/zello/Desktop/INSTASOCIAL/src/components/modules/reminders-panel.tsx)
+
+Isso nao quebra o sistema, mas dificulta:
+
+- manutencao
+- testes
+- leitura rapida
+
+### Passo a passo recomendado
+
+1. Quebrar os maiores paineis em subcomponentes.
+2. Extrair blocos recorrentes:
+   - secoes de cards
+   - linhas de status
+   - blocos de metricas
+3. Criar hooks locais para cada modulo com:
+   - estado
+   - carregamento
+   - erro
+   - acao principal
 
 ---
 
-## 7. LOGICA / REGRAS DE NEGOCIO
-
-### Percentual atual: **83%**
+## 5. BACKEND E APIS
 
 ## PROBLEMA
 
-Havia uma fragilidade na geracao de lembretes para domingo.
+APIs funcionais podem continuar fragilizadas se:
+
+- dependerem demais de payload do cliente
+- misturarem auth com regra de negocio
+- tratarem erro de forma desigual
 
 ## SOLUCAO
 
-### O que foi implementado
+### O que foi validado
 
-1. Correcao de `buildReminderDate` em:
-   - `src/lib/calendar-reminder-time.ts`
+1. O backend ja usa sessao autenticada em rotas importantes.
+2. O acesso autenticado ao banco via usuario esta presente nas leituras normais.
+3. Existe camada admin para rotas sensiveis:
+   - leads
+   - execucao administrativa
 
-### Resultado
+4. Existe rota de health-check:
+   - [route.ts](c:/Users/zello/Desktop/INSTASOCIAL/src/app/api/health/route.ts)
 
-- geracao de datas semanais mais confiavel
+### Ponto forte
+
+As rotas principais deixaram de confiar cegamente em `userId` enviado pelo frontend.
+
+### Ponto fraco
+
+Ainda ha espaco para padronizar melhor:
+
+- respostas de erro
+- codigos HTTP
+- tratamento comum em todas as rotas
+
+### Passo a passo recomendado
+
+1. Expandir o uso de `AppError` para todas as rotas.
+2. Criar helpers comuns para:
+   - validacao de `profileId`
+   - parse de body
+   - resposta JSON padrao
+3. Cobrir as rotas criticas com testes de API.
 
 ---
 
-## 8. TESTES / QUALIDADE
-
-### Percentual atual: **72%**
+## 6. SEGURANCA, OWNERSHIP E ADMINISTRACAO
 
 ## PROBLEMA
 
-Antes, a base dependia quase totalmente de verificacao manual.
+Sistemas com auth real so ficam realmente seguros quando:
+
+- o backend confia na sessao
+- o banco protege as linhas
+- a camada admin e restrita
 
 ## SOLUCAO
 
-### O que foi implementado
+### O que foi encontrado de positivo
 
-1. Adicao do Vitest:
-   - `package.json`
-   - `vitest.config.ts`
+1. Existe `requireAuthenticatedUser`.
+2. Existe `requireProfileOwnership`.
+3. O banco usa RLS nas tabelas principais.
+4. `pilot_leads` esta bloqueada por policy padrao.
+5. Rotas administrativas usam `requireAdminUser`.
 
-2. Testes criados:
-   - `src/lib/week-key.test.ts`
-   - `src/lib/calendar-reminder-time.test.ts`
-   - `src/lib/labels.test.ts`
+Exemplo:
+- [route.ts](c:/Users/zello/Desktop/INSTASOCIAL/src/app/api/pilot/leads/route.ts)
 
-3. Script de teste adicionado:
-   - `npm run test`
+### Risco real ainda existente
 
-4. Validacao final executada com sucesso:
-   - `npm run typecheck`
-   - `npm run lint`
-   - `npm run test`
-   - `npm run build`
+O schema ainda usa `user_id text` em vez de `uuid`.
 
-### Resultado
+Isso funciona, mas deixa:
 
-- a base saiu do zero em testes automatizados
-- utilitarios principais agora ja têm cobertura minima
+- RLS mais verbosa
+- comparacoes com cast
+- indices menos elegantes
+- modelagem menos robusta
+
+### Passo a passo recomendado
+
+1. Planejar migracao gradual de `user_id` para `uuid`.
+2. Auditar funcoes `SECURITY DEFINER` no Supabase.
+3. Formalizar papel admin no banco ou em tabela de roles, em vez de depender apenas de `ADMIN_EMAILS`.
 
 ---
 
-## 9. OPERACAO / DEPLOY
-
-### Percentual atual: **79%**
+## 7. BANCO DE DADOS E MODELAGEM
 
 ## PROBLEMA
 
-O deploy dependia muito de interpretacao manual de ambiente.
+Modelagem boa para MVP nem sempre e modelagem boa para manutencao e escala.
 
 ## SOLUCAO
 
-### O que foi implementado
+### O que foi encontrado de positivo
 
-1. `.env.example` foi atualizado com:
-   - `ADMIN_EMAILS`
+1. Estrutura das tabelas principais esta coerente com o produto.
+2. Ha indices para colunas centrais de filtro.
+3. Ha RLS habilitado nas tabelas da aplicacao.
+4. A tabela de leads ja evoluiu de lista simples para pipeline minimo.
 
-2. `README.md` foi atualizado com:
-   - uso de `npm run test`
-   - health-check
-   - restricao administrativa do painel de leads
+### Pontos fracos
 
-### Resultado
+1. `user_id` em `text`.
+2. O projeto ainda depende de um `schema.sql` grande e acumulado.
+3. Nao ha migracoes versionadas por etapa.
 
-- operacao mais clara
-- menos “conhecimento escondido” fora do repositório
+### Passo a passo recomendado
+
+1. Adotar migracoes versionadas.
+2. Separar:
+   - schema base
+   - alteracoes incrementais
+   - seeds
+3. Planejar revisao de tipos:
+   - `user_id`
+   - status com enum no futuro, se fizer sentido
 
 ---
 
-## 10. O QUE AINDA FICA COMO PROXIMO CICLO
-
-### Percentual pendente estimado: **16%**
+## 8. TESTES E QUALIDADE
 
 ## PROBLEMA
 
-Apesar da melhora grande, ainda restam algumas evolucoes importantes para um nivel ainda mais profissional.
+Sem testes suficientes, o sistema cresce, mas a confianca nao acompanha.
 
 ## SOLUCAO
 
-### Proximos passos recomendados
+### O que foi validado nesta rodada
 
-1. Criar papel administrativo mais formal que lista de e-mails.
-2. Adicionar testes de API e fluxo E2E.
-3. Melhorar a camada de automacao Instagram para producao real.
-4. Evoluir o CRM com notas editaveis e historico de interacoes.
-5. Adicionar migracoes versionadas, nao apenas `schema.sql`.
-6. Melhorar dinamismo do dashboard com proximas acoes realmente contextuais.
-7. Cobrir mais rotas com `AppError` + status HTTP consistentes.
+1. `npm run typecheck` passou.
+2. `npm run lint` passou.
+3. `npm run test` passou.
+4. `npm run build` passou.
+
+### O que existe hoje
+
+Ha testes automatizados para utilitarios:
+
+- [week-key.test.ts](c:/Users/zello/Desktop/INSTASOCIAL/src/lib/utils/__tests__/week-key.test.ts)
+- [labels.test.ts](c:/Users/zello/Desktop/INSTASOCIAL/src/lib/utils/__tests__/labels.test.ts)
+- [calendar-reminder-time.test.ts](c:/Users/zello/Desktop/INSTASOCIAL/src/lib/utils/__tests__/calendar-reminder-time.test.ts)
+
+### Avaliacao honesta
+
+Isto e bom como base, mas ainda e pouco para o tamanho funcional atual.
+
+Hoje faltam principalmente:
+
+- testes de API
+- testes de componentes
+- testes E2E do fluxo principal
+
+### Boas praticas recomendadas
+
+1. Criar testes de rota para:
+   - onboarding
+   - ideas
+   - weekly plan
+   - reminders
+   - dashboard
+
+2. Adicionar E2E do fluxo principal:
+   - login
+   - onboarding
+   - gerar ideias
+   - aprovar
+   - selecionar semana
+   - gerar calendario
+   - gerar lembretes
+   - abrir dashboard
+
+3. Definir criterio minimo antes de deploy:
+   - typecheck
+   - lint
+   - unit
+   - build
+
+---
+
+## 9. DEPLOY, AMBIENTE E OPERACAO
+
+## PROBLEMA
+
+Em MVP com Vercel e Supabase, grande parte dos erros reais aparece em:
+
+- env
+- auth redirect
+- deploy antigo
+- confusao entre preview e production
+
+## SOLUCAO
+
+### O que foi validado
+
+1. O build de producao fecha localmente.
+2. O projeto tem health-check.
+3. A documentacao cobre envs principais.
+
+### O que ainda exige disciplina
+
+1. `NEXT_PUBLIC_SITE_URL` precisa estar correta em producao.
+2. `NEXT_PUBLIC_SUPABASE_URL` e a chave publica precisam existir no ambiente certo.
+3. Redirect URLs do Supabase Auth precisam acompanhar a URL real da Vercel.
+
+### Boas praticas recomendadas
+
+1. Usar `Production`, `Preview` e `Development` com envs revisadas.
+2. Rodar checklist de deploy antes de cada release.
+3. Testar sempre:
+   - `/api/health`
+   - `/login`
+   - `/signup`
+   - `/`
+
+---
+
+## 10. COMERCIAL, PILOTO E CAPTACAO
+
+## PROBLEMA
+
+Ter produto funcional nao significa ter operacao comercial organizada.
+
+## SOLUCAO
+
+### O que foi encontrado de positivo
+
+1. Existe landing de piloto.
+2. Existe formulario de aplicacao.
+3. Existe painel de leads.
+4. Existe status de pipeline simples.
+
+### Ponto forte
+
+O produto ja nao depende apenas de demo manual. Ele consegue captar interessado e organizar follow-up.
+
+### Ponto fraco
+
+O CRM ainda e enxuto:
+
+- sem historico de interacoes
+- sem notas editaveis na UI
+- sem origem mais detalhada
+
+### Passo a passo recomendado
+
+1. Permitir editar notas de lead na interface.
+2. Registrar ultima acao feita com o lead.
+3. Adicionar filtros por origem e periodo.
+
+---
+
+## 11. AUTOMACOES INSTAGRAM
+
+## PROBLEMA
+
+Esta area existe, mas ainda nao deve ser tratada como coracao do MVP comercial.
+
+## SOLUCAO
+
+### Estado atual
+
+1. A base de regras, eventos e acoes existe.
+2. O monitor existe.
+3. O executor existe.
+
+### Limite atual
+
+Essa area ainda depende de validacao real de producao com:
+
+- webhook publico
+- permissao correta da Meta
+- private replies funcionando de ponta a ponta
+
+### Recomendacao
+
+1. Manter como recurso avancado.
+2. Nao vender como principal enquanto nao houver validacao real em producao.
+
+---
+
+## 12. PRINCIPAIS RISCOS ATUAIS
+
+## PROBLEMA
+
+Mesmo com o sistema bom, alguns riscos ainda podem gerar retrabalho ou percepcao ruim do usuario.
+
+## SOLUCAO
+
+### Riscos prioritarios
+
+1. Cobertura de testes ainda insuficiente para o tamanho do produto.
+2. `user_id` em `text` em vez de `uuid`.
+3. Dependencia de configuracao correta de ambiente para auth e deploy.
+4. Dashboard e paineis grandes, o que dificulta manutencao.
+5. Automacao Instagram ainda nao totalmente provada em ambiente real.
+
+### Ordem recomendada de mitigacao
+
+1. Testes de API e E2E
+2. Migracoes versionadas
+3. Revisao de `user_id`
+4. Hooks e subcomponentes nos paineis grandes
+5. Evolucao de admin roles
+
+---
+
+## 13. PLANO RECOMENDADO DE MELHORIA
+
+## PROBLEMA
+
+Melhorar tudo ao mesmo tempo costuma travar a evolucao.
+
+## SOLUCAO
+
+### Fase 1 - Confianca tecnica
+
+1. Adicionar testes de API.
+2. Adicionar E2E do fluxo principal.
+3. Criar criterio de release.
+
+### Fase 2 - Usabilidade
+
+1. Melhorar badges, toasts e feedback visual.
+2. Tornar proxima acao do dashboard realmente dinamica.
+3. Simplificar telas mais densas.
+
+### Fase 3 - Base de dados e seguranca
+
+1. Migrar `user_id` para `uuid`.
+2. Adotar migracoes versionadas.
+3. Formalizar papel admin.
+
+### Fase 4 - Comercial e operacao
+
+1. Evoluir CRM de leads.
+2. Melhorar landing do piloto.
+3. Criar relatorio de uso e conversao.
 
 ---
 
@@ -389,43 +620,50 @@ Apesar da melhora grande, ainda restam algumas evolucoes importantes para um niv
 
 ## PROBLEMA
 
-O sistema antes desta execucao era um MVP forte, mas com lacunas relevantes de seguranca, operacao e qualidade automatizada.
+O risco de um MVP nessa fase e parecer pronto, mas ainda nao ter confianca suficiente para crescer com seguranca e previsibilidade.
 
 ## SOLUCAO
 
-Depois desta execucao, o sistema ficou consideravelmente mais serio.
-
-### O que melhorou mais
-
-- seguranca
-- ownership
-- operacao administrativa
-- resiliencia de ambiente
-- qualidade automatizada
-- utilizacao real do funil de leads
-
-### Nota final atual
-
-- **Produto / valor percebido:** 8.8/10
-- **Base tecnica geral:** 8.5/10
-- **Seguranca atual:** 8.4/10
-- **Prontidao para testes com usuarios:** 9.0/10
-- **Prontidao para escala com mais confianca:** 8.0/10
-
-### Recomendacao objetiva
-
-O sistema agora ja esta em um patamar bem mais forte para:
+Hoje o sistema ja esta em um patamar forte para:
 
 1. demonstracao
 2. piloto com usuarios reais
-3. captacao de leads
-4. operacao inicial com mais seguranca
+3. captacao inicial de leads
+4. uso funcional do fluxo principal
 
-O proximo salto natural agora deixa de ser “corrigir base”.
+### O que esta realmente bom
 
-O proximo salto natural passa a ser:
+- fluxo principal do produto
+- organizacao geral da base
+- auth real
+- ownership razoavel
+- dashboard e funil comercial minimo
+- validacao tecnica basica passando
 
-1. testes mais profundos
-2. refinamento comercial
-3. automacao real em producao
-4. amadurecimento de roles administrativas
+### O que mais merece investimento agora
+
+- testes
+- UX de estados e feedback
+- migracoes versionadas
+- modelagem de `user_id`
+- endurecimento final da operacao/admin
+
+### Diagnostico final
+
+O sistema nao esta mais em fase de "prototipo confuso".
+
+Ele esta em fase de **MVP serio**, com boa base para piloto e demonstracao, mas que ainda precisa de:
+
+- mais confianca automatizada
+- mais refinamento de experiencia
+- mais disciplina operacional
+
+### Recomendacao objetiva
+
+Se a prioridade for produto real, o melhor proximo movimento e:
+
+1. aumentar cobertura de testes
+2. melhorar a experiencia do fluxo principal
+3. estabilizar operacao e banco com migracoes versionadas
+
+Isso eleva a qualidade sem dispersar energia em features secundarias.

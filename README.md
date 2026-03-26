@@ -1,127 +1,189 @@
-# InstaSocial
+# INSISINT
 
-Creator Copilot e um MVP para creators, especialistas e pequenos negocios
-organizarem conteudo semanal com ajuda de IA.
+INSISINT e um copiloto de operacao de conteudo com IA para creators, especialistas e pequenos negocios que precisam transformar ideias soltas em um fluxo semanal claro.
 
-- Next.js com App Router
+## Visao Geral
+
+O produto combina planejamento, execucao e acompanhamento em um unico fluxo:
+
+1. cadastro e login
+2. onboarding do perfil
+3. diagnostico inicial
+4. geracao e aprovacao de ideias
+5. selecao das ideias da semana
+6. geracao de calendario
+7. criacao de lembretes
+8. acompanhamento no dashboard
+
+## Publico-alvo
+
+- creators iniciantes
+- especialistas que usam conteudo para autoridade
+- autonomos e pequenos negocios
+- perfis que precisam de mais consistencia operacional
+
+## Problema que resolve
+
+INSISINT ajuda quem:
+
+- trava na hora de decidir o que postar
+- acumula ideias sem executar
+- nao consegue organizar a semana de conteudo
+- precisa de um fluxo mais consistente de planejamento e execucao
+
+## Resultado prometido
+
+- mais clareza sobre o que publicar
+- mais organizacao da rotina
+- menos improviso
+- mais consistencia operacional
+
+## Como funciona
+
+### Fluxo principal do usuario
+
+1. o usuario cria conta ou faz login
+2. preenche o onboarding com nicho, publico, objetivo e tom
+3. recebe um diagnostico inicial
+4. gera ideias alinhadas ao perfil
+5. aprova o que faz sentido
+6. escolhe as ideias da semana
+7. transforma isso em calendario
+8. gera lembretes de execucao
+9. acompanha progresso no dashboard
+
+## Principais funcionalidades
+
+- autenticacao real com Supabase Auth
+- onboarding por perfil
+- diagnostico inicial com OpenAI
+- geracao de ideias por categoria
+- aprovacao e rejeicao de ideias
+- geracao de roteiros
+- plano semanal
+- calendario de conteudo
+- lembretes operacionais
+- dashboard consolidado
+- analytics basico
+- landing de piloto e captacao de leads
+- automacao inicial por comentario do Instagram
+
+## Fluxo do usuario
+
+### Fluxo principal
+
+1. `/signup` ou `/login`
+2. `/onboarding`
+3. `/ideas`
+4. `/weekly-plan`
+5. `/calendar`
+6. `/reminders`
+7. `/dashboard`
+
+### Fluxos secundarios
+
+- `/scripts`
+- `/analytics`
+- `/automation`
+- `/automation/monitor`
+- `/pilot`
+- `/pilot/leads`
+
+## Stack
+
+- Next.js App Router
 - TypeScript
+- React
 - Supabase
 - OpenAI
 - Zod
+- Vitest
 
-## Rodando localmente
+## Setup local
 
-1. Instale as dependencias com `npm install`.
-2. Copie `.env.example` para `.env.local` e preencha as chaves.
-3. Rode o SQL de `supabase/schema.sql` no seu projeto Supabase.
-4. Inicie com `npm run dev`.
-5. Rode `npm run test` para validar os utilitarios principais.
+1. instale as dependencias com `npm install`
+2. copie `.env.example` para `.env.local`
+3. preencha as variaveis de ambiente
+4. rode `supabase/schema.sql` no projeto Supabase
+5. opcionalmente rode `supabase/seed.sql`
+6. inicie com `npm run dev`
 
-## Variaveis do Supabase
+## Variaveis de ambiente
 
-O projeto aceita a chave publica do Supabase em um destes nomes:
-
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`
-
-Se o painel do Supabase te entregou uma `publishable key`, pode usar esse nome novo sem problema.
-
-## Variaveis da automacao do Instagram
-
-Para testar o MVP de gatilho por comentario, configure tambem:
-
-- `INSTAGRAM_WEBHOOK_VERIFY_TOKEN`
-- `INSTAGRAM_ACCESS_TOKEN`
-- `DEMO_PROFILE_ID`
-
-## Fluxo implementado
-
-- `/onboarding` salva o perfil no Supabase
-- `/api/diagnosis` gera um diagnostico com OpenAI
-- O resultado fica salvo na tabela `diagnoses`
-- `/ideas` gera ideias de conteudo por categoria
-- `/api/ideas` salva as ideias na tabela `content_ideas`
-- `/scripts` transforma uma ideia em roteiro publicavel
-- `/api/scripts` salva o roteiro na tabela `scripts`
-- `/calendar` gera um calendario semanal de conteudo
-- `/api/calendar` salva o calendario na tabela `content_calendar`
-- `/reminders` cria e lista lembretes operacionais
-- `/api/reminders` e `/api/reminders/list` persistem e consultam a tabela `reminders`
-- `/dashboard` consolida os dados principais do perfil em uma unica visao
-- `/api/dashboard` agrega perfil, diagnostico, ideias, roteiros, calendario e lembretes
-- `/automation` cadastra regras de comentario por palavra-chave
-- `/api/webhooks/instagram` recebe os eventos de comentario do webhook
-- `/api/automation/actions/run` executa as respostas privadas pendentes
-- `/analytics` mostra os numeros principais de ideias, execucao e automacoes
-- `/api/analytics` agrega os contadores principais por perfil
-
-## Fluxo principal do MVP
-
-1. cadastro ou login
-2. onboarding do perfil
-3. geracao e aprovacao de ideias
-4. selecao das ideias da semana
-5. geracao do calendario
-6. criacao de lembretes
-7. acompanhamento no dashboard
-
-## Recursos secundarios
-
-- roteiros
-- analytics
-- automacao por comentario
-- monitor de automacoes
-
-## Demo data
-
-Para acelerar demonstracoes, use `supabase/seed.sql` e troque
-`SUBSTITUIR_PELO_USER_ID` por um usuario valido do Supabase Auth.
-
-## Deploy em producao
-
-Stack recomendada:
-
-- frontend e rotas Next.js na Vercel
-- banco, auth e storage no Supabase
-
-### Variaveis minimas na Vercel
+### Publicas
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`
+- `NEXT_PUBLIC_SITE_URL`
+
+### Privadas
+
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `OPENAI_API_KEY`
-- `NEXT_PUBLIC_SITE_URL`
-- `ADMIN_EMAILS` para restringir painel de leads e execucao administrativa
+- `ADMIN_EMAILS`
 
-### Variaveis opcionais para automacao
+### Opcionais para automacao Instagram
 
 - `INSTAGRAM_WEBHOOK_VERIFY_TOKEN`
 - `INSTAGRAM_ACCESS_TOKEN`
 - `DEMO_PROFILE_ID`
 
-### Auth no Supabase
+## Deploy
 
-Inclua em Redirect URLs:
+Stack recomendada:
 
-- `http://localhost:3000/**`
-- `https://seu-projeto.vercel.app/**`
-- `https://*-seu-time.vercel.app/**`
+- Vercel para frontend e rotas Next.js
+- Supabase para banco, auth e storage
 
-Consulte tambem `DEPLOY_CHECKLIST.md` para o roteiro completo de deploy e validacao.
+Checklist resumido:
 
-### Health-check
+1. configurar envs na Vercel
+2. configurar Redirect URLs no Supabase Auth
+3. rodar `supabase/schema.sql`
+4. validar `GET /api/health`
+5. testar login, onboarding e fluxo principal
 
-O projeto expoe `GET /api/health` para conferencias operacionais basicas de ambiente.
+Consulte [DEPLOY_CHECKLIST.md](c:/Users/zello/Desktop/INSTASOCIAL/DEPLOY_CHECKLIST.md) para o roteiro detalhado.
 
-## Piloto comercial
+## Testes
 
-O projeto ja inclui uma base simples para captacao inicial:
+Comandos principais:
 
-- `/pilot` para apresentar a proposta do piloto
-- `/pilot/apply` para aplicar ao piloto
-- `/pilot/leads` para acompanhar interessados, restrito a e-mails em `ADMIN_EMAILS`
+- `npm run typecheck`
+- `npm run lint`
+- `npm run test`
+- `npm run build`
 
-Posicionamento sugerido:
+Hoje a cobertura automatizada esta concentrada nos utilitarios centrais. O proximo passo recomendado e ampliar testes de API e fluxo E2E.
 
-> Um copiloto de conteudo com IA para creators e especialistas organizarem
-> ideias, semana, calendario e execucao com mais consistencia.
+## Status do produto
+
+Estado atual:
+
+- MVP funcional
+- pronto para demo e pilotos
+- nao deve ser tratado ainda como plataforma enterprise
+
+## Roadmap
+
+### Curto prazo
+
+- ampliar testes
+- melhorar estados de UX
+- evoluir documentacao tecnica
+- refinar pipeline comercial
+
+### Medio prazo
+
+- migracoes versionadas
+- amadurecimento de roles administrativas
+- evolucao do CRM de leads
+- integracoes mais robustas
+
+### Longo prazo
+
+- SaaS mais completo
+- automacoes mais profundas
+- IA mais contextual
+- operacao multiusuario mais madura

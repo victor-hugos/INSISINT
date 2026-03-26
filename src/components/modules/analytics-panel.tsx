@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useActiveProfile } from "@/components/profile/profile-provider";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { getErrorMessage } from "@/lib/utils/get-error-message";
 import { fetchAnalytics } from "@/lib/services/analytics-service";
 import type { AnalyticsData } from "@/types/analytics";
@@ -91,15 +93,30 @@ export function AnalyticsPanel() {
 
       <>
         <section style={cardStyle}>
-          <button type="button" onClick={loadAnalytics} disabled={loading} style={buttonStyle}>
-            {loading ? "Atualizando..." : "Atualizar analytics"}
-          </button>
-          {error ? <p style={{ color: "#8a2f12", marginBottom: 0 }}>{error}</p> : null}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "grid", gap: 6 }}>
+              <p style={{ margin: 0, color: "var(--muted)" }}>Leitura da operacao</p>
+              <strong>Veja rapidamente o volume e a execucao do perfil ativo.</strong>
+            </div>
+            <button type="button" onClick={loadAnalytics} disabled={loading} style={buttonStyle}>
+              {loading ? "Atualizando..." : "Atualizar analytics"}
+            </button>
+          </div>
+          {error ? <FeedbackBanner message={error} tone="error" /> : null}
         </section>
 
         {data ? (
           <div style={metricGridStyle}>
               <section style={metricCardStyle}>
+                <StatusBadge tone="accent">Conteudo</StatusBadge>
                 <h2 style={{ marginTop: 0 }}>Ideias</h2>
                 <p><strong>Total:</strong> {data.ideas.total}</p>
                 <p><strong>Aprovadas:</strong> {data.ideas.approved}</p>
@@ -110,6 +127,7 @@ export function AnalyticsPanel() {
               </section>
 
               <section style={metricCardStyle}>
+                <StatusBadge tone="accent">Roteiro</StatusBadge>
                 <h2 style={{ marginTop: 0 }}>Roteiros</h2>
                 <p style={{ marginBottom: 0 }}>
                   <strong>Total:</strong> {data.scripts.total}
@@ -117,6 +135,7 @@ export function AnalyticsPanel() {
               </section>
 
               <section style={metricCardStyle}>
+                <StatusBadge tone="accent">Planejamento</StatusBadge>
                 <h2 style={{ marginTop: 0 }}>Calendario</h2>
                 <p style={{ marginBottom: 0 }}>
                   <strong>Itens planejados:</strong> {data.calendar.total}
@@ -124,6 +143,7 @@ export function AnalyticsPanel() {
               </section>
 
               <section style={metricCardStyle}>
+                <StatusBadge tone="success">Execucao</StatusBadge>
                 <h2 style={{ marginTop: 0 }}>Execucao</h2>
                 <p><strong>Total de lembretes:</strong> {data.reminders.total}</p>
                 <p><strong>Concluidos:</strong> {data.reminders.completed}</p>
@@ -134,6 +154,7 @@ export function AnalyticsPanel() {
               </section>
 
               <section style={metricCardStyle}>
+                <StatusBadge tone="warning">Automacao</StatusBadge>
                 <h2 style={{ marginTop: 0 }}>Automacoes</h2>
                 <p><strong>Total:</strong> {data.automations.total}</p>
                 <p><strong>Enviadas:</strong> {data.automations.sent}</p>
@@ -143,6 +164,8 @@ export function AnalyticsPanel() {
                 </p>
               </section>
           </div>
+        ) : loading ? (
+          <div className="skeleton" style={{ height: 300, borderRadius: 24 }} />
         ) : null}
       </>
     </div>

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { AuthGuard } from "@/components/auth/auth-guard";
+import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { UICard } from "@/components/ui/ui-card";
 
 type Lead = {
@@ -152,7 +154,7 @@ export default function PilotLeadsPage() {
         </UICard>
 
         <UICard title="Filtro e busca">
-          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "2fr 1fr" }}>
+          <div className="responsive-filter-grid">
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -195,27 +197,41 @@ export default function PilotLeadsPage() {
         </UICard>
 
         {error ? (
-          <UICard title="Erro">
-            <p style={{ margin: 0, color: "#8a2f12" }}>{error}</p>
-          </UICard>
+          <FeedbackBanner message={error} tone="error" />
         ) : null}
 
         <UICard title="Interessados">
           {loading ? (
-            <p style={{ margin: 0 }}>Carregando leads...</p>
+            <div className="skeleton" style={{ height: 240, borderRadius: 20 }} />
           ) : filteredLeads.length === 0 ? (
             <p style={{ margin: 0 }}>Nenhuma aplicacao recebida ainda.</p>
           ) : (
             <div style={{ display: "grid", gap: 12 }}>
               {filteredLeads.map((lead) => (
                 <div key={lead.id} style={leadCardStyle}>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                    <StatusBadge
+                      tone={
+                        lead.status === "converted"
+                          ? "success"
+                          : lead.status === "rejected"
+                            ? "danger"
+                            : lead.status === "approved"
+                              ? "accent"
+                              : lead.status === "contacted"
+                                ? "warning"
+                                : "neutral"
+                      }
+                    >
+                      {lead.status}
+                    </StatusBadge>
+                    <StatusBadge tone="accent">{lead.source || "pilot_landing"}</StatusBadge>
+                  </div>
                   <p><strong>Nome:</strong> {lead.name}</p>
                   <p><strong>Instagram:</strong> {lead.instagram || "-"}</p>
                   <p><strong>Nicho:</strong> {lead.niche || "-"}</p>
                   <p><strong>Dor:</strong> {lead.pain || "-"}</p>
                   <p><strong>Objetivo:</strong> {lead.goal || "-"}</p>
-                  <p><strong>Origem:</strong> {lead.source || "-"}</p>
-                  <p><strong>Status:</strong> {lead.status}</p>
                   <p><strong>Recebido em:</strong> {lead.created_at}</p>
                   {lead.contacted_at ? (
                     <p><strong>Contatado em:</strong> {lead.contacted_at}</p>

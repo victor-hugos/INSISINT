@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useActiveProfile } from "@/components/profile/profile-provider";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 type Rule = {
   id: string;
@@ -140,6 +142,10 @@ export function AutomationPanel() {
     <div style={shellStyle}>
 
       <form onSubmit={saveRule} style={cardStyle}>
+        <div style={{ display: "grid", gap: 6, marginBottom: 18 }}>
+          <p style={{ margin: 0, color: "var(--muted)" }}>Gatilho por comentario</p>
+          <strong>Crie regras simples para responder automaticamente a palavras-chave.</strong>
+        </div>
         <label style={labelStyle}>
           Palavra-chave
           <input
@@ -176,7 +182,7 @@ export function AutomationPanel() {
           {loading ? "Salvando..." : "Criar regra de comentario"}
         </button>
 
-        {error ? <p style={{ color: "#8a2f12", marginTop: 16 }}>{error}</p> : null}
+        {error ? <FeedbackBanner message={error} tone="error" /> : null}
       </form>
 
       <section style={cardStyle}>
@@ -197,14 +203,17 @@ export function AutomationPanel() {
                   background: "rgba(255,255,255,0.65)",
                 }}
               >
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                  <StatusBadge tone="accent">Comentario</StatusBadge>
+                  <StatusBadge tone={rule.is_active ? "success" : "neutral"}>
+                    {rule.is_active ? "Ativa" : "Inativa"}
+                  </StatusBadge>
+                </div>
                 <p>
                   <strong>Palavra-chave:</strong> {rule.keyword}
                 </p>
                 <p>
                   <strong>Mensagem:</strong> {rule.reply_message}
-                </p>
-                <p style={{ marginBottom: 0 }}>
-                  <strong>Ativa:</strong> {rule.is_active ? "Sim" : "Nao"}
                 </p>
               </article>
             ))

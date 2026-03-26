@@ -5,7 +5,7 @@ import { ProfileProvider } from "@/components/profile/profile-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "InstaSocial",
+  title: "INSISINT",
   description: "Copiloto para operacao de conteudo com IA",
 };
 

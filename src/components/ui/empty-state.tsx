@@ -15,17 +15,41 @@ export function EmptyState({
     <div
       style={{
         border: "1px dashed var(--border)",
-        borderRadius: 20,
-        padding: 24,
+        borderRadius: 24,
+        padding: 28,
         display: "grid",
-        gap: 10,
-        background: "rgba(255,255,255,0.6)",
+        gap: 12,
+        background: "var(--bg-panel)",
+        boxShadow: "var(--shadow-soft)",
       }}
     >
+      <p
+        style={{
+          margin: 0,
+          color: "var(--accent-strong)",
+          fontSize: "0.78rem",
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          fontWeight: 700,
+        }}
+      >
+        Estado vazio
+      </p>
       <h3 style={{ margin: 0 }}>{title}</h3>
       <p style={{ margin: 0, color: "var(--muted)" }}>{description}</p>
       {ctaLabel && ctaHref ? (
-        <Link href={ctaHref} style={{ fontWeight: 700, color: "var(--accent-strong)" }}>
+        <Link
+          href={ctaHref}
+          style={{
+            width: "fit-content",
+            padding: "12px 14px",
+            borderRadius: 14,
+            border: "1px solid var(--border)",
+            background: "rgba(255,255,255,0.8)",
+            fontWeight: 700,
+            color: "var(--accent-strong)",
+          }}
+        >
           {ctaLabel}
         </Link>
       ) : null}

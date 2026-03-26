@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useActiveProfile } from "@/components/profile/profile-provider";
 import { EmptyState } from "@/components/ui/empty-state";
+import { FeedbackBanner } from "@/components/ui/feedback-banner";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { CalendarItem } from "@/types/calendar";
 
 type CalendarResponse = {
@@ -161,12 +163,16 @@ export function CalendarPanel() {
     <div style={shellStyle}>
 
       <form onSubmit={handleSubmit} style={cardStyle}>
+        <div style={{ display: "grid", gap: 6, marginBottom: 14 }}>
+          <p style={{ margin: 0, color: "var(--muted)" }}>Planejamento semanal</p>
+          <strong>Transforme as ideias selecionadas em uma semana organizada.</strong>
+        </div>
         <button type="submit" disabled={loading} style={buttonStyle}>
           {loading
             ? "Gerando calendario..."
             : "Gerar calendario com ideias selecionadas"}
         </button>
-        {error ? <p style={{ color: "#8a2f12", marginBottom: 0 }}>{error}</p> : null}
+        {error ? <FeedbackBanner message={error} tone="error" /> : null}
       </form>
 
       {result ? (
@@ -195,9 +201,10 @@ export function CalendarPanel() {
               gap: 12,
             }}
           >
-            <div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
               <strong>Ideias selecionadas consideradas:</strong>{" "}
               {result.ideasUsedCount ?? 0}
+              <StatusBadge tone="accent">{sortedItems.length} item(ns) no calendario</StatusBadge>
             </div>
             <button
               type="button"
@@ -209,9 +216,7 @@ export function CalendarPanel() {
                 ? "Gerando lembretes..."
                 : "Gerar lembretes automaticos desta semana"}
             </button>
-            {reminderMessage ? (
-              <p style={{ margin: 0, color: "#256245" }}>{reminderMessage}</p>
-            ) : null}
+            {reminderMessage ? <FeedbackBanner message={reminderMessage} tone="success" /> : null}
           </div>
           <div style={{ display: "grid", gap: 12 }}>
             {sortedItems.map((item, index) => (
@@ -224,6 +229,10 @@ export function CalendarPanel() {
                   background: "rgba(255,255,255,0.65)",
                 }}
               >
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                  <StatusBadge tone="accent">{item.contentType}</StatusBadge>
+                  <StatusBadge tone="warning">{item.category}</StatusBadge>
+                </div>
                 <h3 style={{ marginTop: 0, marginBottom: 8, textTransform: "capitalize" }}>
                   {item.dayOfWeek} - {item.title}
                 </h3>

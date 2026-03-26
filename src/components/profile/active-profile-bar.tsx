@@ -8,11 +8,13 @@ import { useActiveProfile } from "@/components/profile/profile-provider";
 
 const barStyle: React.CSSProperties = {
   border: "1px solid var(--border)",
-  borderRadius: 20,
-  padding: 18,
+  borderRadius: 24,
+  padding: 20,
   display: "grid",
-  gap: 12,
-  background: "rgba(255,255,255,0.72)",
+  gap: 14,
+  background: "var(--bg-panel)",
+  boxShadow: "var(--shadow-soft)",
+  backdropFilter: "blur(10px)",
 };
 
 const inputStyle: React.CSSProperties = {
@@ -60,13 +62,42 @@ export function ActiveProfileBar() {
   }
 
   if (loading) {
-    return <div style={barStyle}>Carregando sessao...</div>;
+    return (
+      <div style={barStyle}>
+        <div
+          className="skeleton"
+          style={{ height: 14, width: 120, borderRadius: 999 }}
+        />
+        <div
+          className="skeleton"
+          style={{ height: 44, width: "100%", borderRadius: 16 }}
+        />
+        <div
+          className="skeleton"
+          style={{ height: 58, width: "100%", borderRadius: 18 }}
+        />
+      </div>
+    );
   }
 
   if (!user) {
     return (
       <div style={barStyle}>
-        <h2 style={{ margin: 0 }}>Perfil ativo</h2>
+        <div style={{ display: "grid", gap: 4 }}>
+          <p
+            style={{
+              margin: 0,
+              color: "var(--accent-strong)",
+              fontSize: "0.78rem",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              fontWeight: 700,
+            }}
+          >
+            Perfil
+          </p>
+          <h2 style={{ margin: 0 }}>Entre para continuar o fluxo</h2>
+        </div>
         <p style={{ margin: 0 }}>
           Entre na sua conta para ativar um perfil e continuar o fluxo de trabalho.
         </p>
@@ -87,11 +118,51 @@ export function ActiveProfileBar() {
 
   return (
     <div style={barStyle}>
-      <h2 style={{ margin: 0 }}>Perfil ativo</h2>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+          gap: 12,
+          alignItems: "start",
+        }}
+      >
+        <div style={{ display: "grid", gap: 4 }}>
+          <p
+            style={{
+              margin: 0,
+              color: "var(--accent-strong)",
+              fontSize: "0.78rem",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              fontWeight: 700,
+            }}
+          >
+            Perfil ativo
+          </p>
+          <h2 style={{ margin: 0 }}>
+            {profile ? profile.niche : "Ative um perfil para continuar"}
+          </h2>
+        </div>
+
+        {profile ? (
+          <div
+            style={{
+              padding: "8px 12px",
+              borderRadius: 999,
+              background: "var(--accent-soft)",
+              color: "var(--accent-strong)",
+              fontWeight: 700,
+            }}
+          >
+            Perfil pronto para uso
+          </div>
+        ) : null}
+      </div>
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <input
-          placeholder="Informe o profileId"
+          placeholder="Cole o profileId de um perfil existente"
           value={inputValue}
           onChange={(event) => setInputValue(event.target.value)}
           style={inputStyle}
@@ -113,7 +184,12 @@ export function ActiveProfileBar() {
         </button>
       </div>
 
-      {loadingProfile ? <p style={{ margin: 0 }}>Carregando perfil...</p> : null}
+      {loadingProfile ? (
+        <div
+          className="skeleton"
+          style={{ height: 68, width: "100%", borderRadius: 18 }}
+        />
+      ) : null}
 
       {!loadingProfile && activeProfileId && profile ? (
         <div style={{ display: "grid", gap: 6 }}>
@@ -136,7 +212,9 @@ export function ActiveProfileBar() {
       ) : null}
 
       {!loadingProfile && activeProfileId && !profile ? (
-        <p style={{ margin: 0 }}>Nao foi possivel carregar esse perfil.</p>
+        <p style={{ margin: 0, color: "#8a2f12" }}>
+          Nao foi possivel carregar esse perfil. Confira o `profileId` ou crie um novo onboarding.
+        </p>
       ) : null}
     </div>
   );
