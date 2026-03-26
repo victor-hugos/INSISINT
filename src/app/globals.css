@@ -1,19 +1,23 @@
 :root {
-  color-scheme: light;
-  --bg: #f3ecdf;
-  --bg-strong: #f7f1e7;
-  --bg-elevated: rgba(255, 252, 247, 0.84);
-  --bg-panel: rgba(255, 255, 255, 0.74);
-  --border: rgba(76, 43, 14, 0.11);
-  --border-strong: rgba(76, 43, 14, 0.18);
-  --text: #2f1b0c;
-  --muted: #6c5646;
-  --accent: #d96f2d;
-  --accent-strong: #9f4516;
-  --accent-soft: rgba(217, 111, 45, 0.12);
-  --success: #256245;
-  --shadow: 0 20px 45px rgba(78, 41, 12, 0.1);
-  --shadow-soft: 0 10px 30px rgba(78, 41, 12, 0.06);
+  color-scheme: dark;
+  --bg: #0d0a15;
+  --bg-strong: #141022;
+  --bg-elevated: rgba(18, 14, 29, 0.9);
+  --bg-panel: rgba(20, 16, 31, 0.86);
+  --surface-soft: rgba(24, 19, 38, 0.82);
+  --surface-strong: rgba(28, 22, 43, 0.94);
+  --border: rgba(151, 108, 255, 0.16);
+  --border-strong: rgba(151, 108, 255, 0.28);
+  --text: #f6f2ff;
+  --muted: #a29ab8;
+  --accent: #8b5cf6;
+  --accent-strong: #b188ff;
+  --accent-soft: rgba(139, 92, 246, 0.14);
+  --success: #22c55e;
+  --danger: #f87171;
+  --shadow: 0 24px 70px rgba(5, 3, 12, 0.48);
+  --shadow-soft: 0 14px 34px rgba(7, 4, 17, 0.34);
+  --glow: 0 0 0 1px rgba(139, 92, 246, 0.06), 0 0 26px rgba(108, 64, 218, 0.22);
 }
 
 * {
@@ -26,9 +30,9 @@ body {
   min-height: 100%;
   font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
   background:
-    radial-gradient(circle at top left, rgba(224, 146, 69, 0.24), transparent 28%),
-    radial-gradient(circle at 85% 15%, rgba(194, 123, 66, 0.12), transparent 22%),
-    linear-gradient(180deg, #fcf8f2 0%, var(--bg) 100%);
+    radial-gradient(circle at top left, rgba(139, 92, 246, 0.18), transparent 28%),
+    radial-gradient(circle at 82% 14%, rgba(79, 70, 229, 0.16), transparent 20%),
+    linear-gradient(180deg, #120f1d 0%, var(--bg) 100%);
   color: var(--text);
 }
 
@@ -73,12 +77,12 @@ button:disabled {
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: rgba(217, 111, 45, 0.5);
-  box-shadow: 0 0 0 4px rgba(217, 111, 45, 0.12);
+  border-color: rgba(139, 92, 246, 0.55);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.14);
 }
 
 ::selection {
-  background: rgba(217, 111, 45, 0.22);
+  background: rgba(139, 92, 246, 0.28);
 }
 
 .surface-glass {
@@ -119,7 +123,7 @@ select:focus {
   display: grid;
   gap: 16px;
   align-content: start;
-  background: linear-gradient(180deg, rgba(255,252,247,0.88), rgba(248,241,231,0.82));
+  background: linear-gradient(180deg, rgba(16, 13, 25, 0.96), rgba(12, 9, 21, 0.92));
   position: sticky;
   top: 0;
   height: 100vh;
@@ -157,7 +161,7 @@ select:focus {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: rgba(122, 92, 67, 0.12);
+  background: rgba(94, 75, 139, 0.16);
 }
 
 .skeleton::after {
@@ -168,7 +172,7 @@ select:focus {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.4),
+    rgba(180, 145, 255, 0.18),
     transparent
   );
   animation: skeleton-shimmer 1.3s infinite;

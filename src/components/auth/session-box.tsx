@@ -10,7 +10,8 @@ const boxStyle: React.CSSProperties = {
   padding: 14,
   borderRadius: 18,
   border: "1px solid var(--border)",
-  background: "rgba(255,255,255,0.75)",
+  background: "var(--surface-soft)",
+  boxShadow: "var(--shadow-soft)",
 };
 
 const linkStyle: React.CSSProperties = {
@@ -19,7 +20,7 @@ const linkStyle: React.CSSProperties = {
   border: "1px solid var(--border)",
   fontWeight: 700,
   textAlign: "center",
-  background: "rgba(255,255,255,0.88)",
+  background: "var(--surface-strong)",
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -27,7 +28,7 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 12,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };

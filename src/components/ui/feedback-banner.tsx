@@ -2,18 +2,18 @@ type FeedbackTone = "error" | "success" | "info";
 
 const toneStyles: Record<FeedbackTone, React.CSSProperties> = {
   error: {
-    background: "rgba(138,47,18,0.08)",
-    border: "1px solid rgba(138,47,18,0.16)",
-    color: "#8a2f12",
+    background: "rgba(248,113,113,0.08)",
+    border: "1px solid rgba(248,113,113,0.18)",
+    color: "#fda4af",
   },
   success: {
-    background: "rgba(37,98,69,0.08)",
-    border: "1px solid rgba(37,98,69,0.16)",
-    color: "#256245",
+    background: "rgba(34,197,94,0.1)",
+    border: "1px solid rgba(34,197,94,0.18)",
+    color: "#86efac",
   },
   info: {
-    background: "rgba(217,111,45,0.08)",
-    border: "1px solid rgba(217,111,45,0.16)",
+    background: "rgba(139,92,246,0.1)",
+    border: "1px solid rgba(139,92,246,0.18)",
     color: "var(--accent-strong)",
   },
 };

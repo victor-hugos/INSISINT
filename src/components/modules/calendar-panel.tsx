@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
 import { useActiveProfile } from "@/components/profile/profile-provider";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FeedbackBanner } from "@/components/ui/feedback-banner";
@@ -16,20 +17,20 @@ type CalendarResponse = {
 };
 
 const orderedDays = [
-  "segunda",
-  "terca",
-  "quarta",
-  "quinta",
-  "sexta",
-  "sabado",
-  "domingo",
-];
+  { key: "segunda", short: "Seg" },
+  { key: "terca", short: "Ter" },
+  { key: "quarta", short: "Qua" },
+  { key: "quinta", short: "Qui" },
+  { key: "sexta", short: "Sex" },
+  { key: "sabado", short: "Sab" },
+  { key: "domingo", short: "Dom" },
+] as const;
 
 const shellStyle: React.CSSProperties = {
-  maxWidth: 1080,
+  maxWidth: 1120,
   margin: "0 auto",
   display: "grid",
-  gap: 24,
+  gap: 20,
 };
 
 const cardStyle: React.CSSProperties = {
@@ -45,22 +46,56 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 16,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };
+
+const calendarColumnStyle: React.CSSProperties = {
+  border: "1px solid var(--border)",
+  borderRadius: 20,
+  padding: 14,
+  background: "var(--bg-elevated)",
+  minHeight: 220,
+  display: "grid",
+  alignContent: "start",
+  gap: 12,
+  boxShadow: "var(--shadow-soft)",
+};
+
+function getWeekRangeLabel(weekKey?: string) {
+  if (!weekKey) return "Semana atual";
+
+  const match = /^(\d{4})-W(\d{2})$/.exec(weekKey);
+  if (!match) return weekKey;
+
+  const year = Number(match[1]);
+  const week = Number(match[2]);
+
+  const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
+  const day = simple.getUTCDay() || 7;
+  const monday = new Date(simple);
+  monday.setUTCDate(simple.getUTCDate() - day + 1);
+  const sunday = new Date(monday);
+  sunday.setUTCDate(monday.getUTCDate() + 6);
+
+  const formatter = new Intl.DateTimeFormat("pt-BR", {
+    day: "numeric",
+    month: "long",
+  });
+
+  return `${formatter.format(monday)} - ${formatter.format(sunday)}, ${year}`;
+}
 
 export function CalendarPanel() {
   const [loading, setLoading] = useState(false);
   const [generatingReminders, setGeneratingReminders] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CalendarResponse | null>(null);
-  const [reminderMessage, setReminderMessage] = useState<string>("");
+  const [reminderMessage, setReminderMessage] = useState("");
   const { activeProfileId, profile } = useActiveProfile();
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  async function generateCalendar() {
     if (!activeProfileId || !profile) {
       setError("Ative um perfil antes de gerar calendario.");
       return;
@@ -105,6 +140,11 @@ export function CalendarPanel() {
     }
   }
 
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await generateCalendar();
+  }
+
   async function handleGenerateReminders() {
     if (!activeProfileId) {
       setError("Ative um perfil antes de gerar lembretes.");
@@ -146,120 +186,208 @@ export function CalendarPanel() {
     }
   }
 
-  const sortedItems =
-    result?.result.items.slice().sort((a, b) => {
-      return orderedDays.indexOf(a.dayOfWeek) - orderedDays.indexOf(b.dayOfWeek);
-    }) || [];
+  const itemsByDay = useMemo(() => {
+    const grouped = new Map<string, CalendarItem[]>();
 
-  return (
-    !profile ? (
+    for (const day of orderedDays) {
+      grouped.set(day.key, []);
+    }
+
+    for (const item of result?.result.items || []) {
+      const current = grouped.get(item.dayOfWeek) || [];
+      current.push(item);
+      grouped.set(item.dayOfWeek, current);
+    }
+
+    return grouped;
+  }, [result]);
+
+  if (!profile) {
+    return (
       <EmptyState
         title="Nenhum perfil ativo"
         description="Ative um perfil e selecione uma semana antes de montar o calendario."
         ctaLabel="Ir para onboarding"
         ctaHref="/onboarding"
       />
-    ) : (
-    <div style={shellStyle}>
+    );
+  }
 
-      <form onSubmit={handleSubmit} style={cardStyle}>
-        <div style={{ display: "grid", gap: 6, marginBottom: 14 }}>
-          <p style={{ margin: 0, color: "var(--muted)" }}>Planejamento semanal</p>
-          <strong>Transforme as ideias selecionadas em uma semana organizada.</strong>
+  return (
+    <div style={shellStyle}>
+      <section style={cardStyle}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ display: "grid", gap: 6 }}>
+            <p style={{ margin: 0, color: "var(--accent-strong)", fontWeight: 700 }}>
+              Gerar semana
+            </p>
+            <strong>Transforme as ideias selecionadas em um calendário visual pronto para execução.</strong>
+          </div>
+
+          <button type="button" onClick={generateCalendar} disabled={loading} style={buttonStyle}>
+            {loading ? "Gerando..." : "Gerar semana"}
+          </button>
         </div>
-        <button type="submit" disabled={loading} style={buttonStyle}>
-          {loading
-            ? "Gerando calendario..."
-            : "Gerar calendario com ideias selecionadas"}
-        </button>
+
         {error ? <FeedbackBanner message={error} tone="error" /> : null}
-      </form>
+      </section>
+
+      {loading ? (
+        <div className="skeleton" style={{ height: 360, borderRadius: 24 }} />
+      ) : null}
 
       {result ? (
-        <section style={cardStyle}>
-          {result.weekKey ? (
+        <>
+          <section style={cardStyle}>
             <div
               style={{
-                border: "1px solid var(--border)",
-                borderRadius: 18,
-                padding: 12,
-                marginBottom: 16,
-                background: "rgba(255,255,255,0.65)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 12,
+                flexWrap: "wrap",
               }}
             >
-              <strong>Semana do planejamento:</strong> {result.weekKey}
+              <div style={{ display: "grid", gap: 6 }}>
+                <p style={{ margin: 0, color: "var(--muted)" }}>Semana planejada</p>
+                <h2 style={{ margin: 0 }}>{getWeekRangeLabel(result.weekKey)}</h2>
+              </div>
+
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                <StatusBadge tone="accent">
+                  {result.ideasUsedCount ?? 0} ideia(s) usadas
+                </StatusBadge>
+                <StatusBadge tone="success">
+                  {(result.result.items || []).length} item(ns) no calendario
+                </StatusBadge>
+              </div>
             </div>
-          ) : null}
-          <div
-            style={{
-              border: "1px solid var(--border)",
-              borderRadius: 18,
-              padding: 12,
-              marginBottom: 16,
-              background: "rgba(255,255,255,0.65)",
-              display: "grid",
-              gap: 12,
-            }}
-          >
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <strong>Ideias selecionadas consideradas:</strong>{" "}
-              {result.ideasUsedCount ?? 0}
-              <StatusBadge tone="accent">{sortedItems.length} item(ns) no calendario</StatusBadge>
-            </div>
-            <button
-              type="button"
-              onClick={handleGenerateReminders}
-              disabled={generatingReminders}
-              style={buttonStyle}
+          </section>
+
+          <section style={cardStyle}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+                gap: 12,
+              }}
+              className="marketing-card-grid"
             >
-              {generatingReminders
-                ? "Gerando lembretes..."
-                : "Gerar lembretes automaticos desta semana"}
-            </button>
-            {reminderMessage ? <FeedbackBanner message={reminderMessage} tone="success" /> : null}
-          </div>
-          <div style={{ display: "grid", gap: 12 }}>
-            {sortedItems.map((item, index) => (
-              <article
-                key={`${item.dayOfWeek}-${item.title}-${index}`}
-                style={{
-                  border: "1px solid var(--border)",
-                  borderRadius: 18,
-                  padding: 18,
-                  background: "rgba(255,255,255,0.65)",
-                }}
+              {orderedDays.map((day, index) => {
+                const items = itemsByDay.get(day.key) || [];
+
+                return (
+                  <article key={day.key} style={calendarColumnStyle}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 8,
+                        alignItems: "center",
+                      }}
+                    >
+                      <div style={{ display: "grid", gap: 2 }}>
+                        <span style={{ color: "var(--muted)", fontSize: "0.9rem" }}>{day.short}</span>
+                        <strong style={{ fontSize: "1.7rem" }}>{index + 1}</strong>
+                      </div>
+                      <span
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: 999,
+                          display: "grid",
+                          placeItems: "center",
+                          background: "var(--surface-soft)",
+                          color: "var(--accent-strong)",
+                          fontWeight: 700,
+                        }}
+                      >
+                        +
+                      </span>
+                    </div>
+
+                    <div style={{ display: "grid", gap: 10 }}>
+                      {items.length > 0 ? (
+                        items.map((item, itemIndex) => (
+                          <div
+                            key={`${item.dayOfWeek}-${item.title}-${itemIndex}`}
+                            style={{
+                              borderRadius: 16,
+                              border: "1px solid var(--border-strong)",
+                              padding: 10,
+                              background: "rgba(139,92,246,0.14)",
+                              display: "grid",
+                              gap: 8,
+                            }}
+                          >
+                            <p
+                              style={{
+                                margin: 0,
+                                color: "var(--accent-strong)",
+                                fontWeight: 700,
+                                lineHeight: 1.35,
+                              }}
+                            >
+                              {item.title}
+                            </p>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                              <StatusBadge tone="accent">{item.contentType}</StatusBadge>
+                              <StatusBadge tone="neutral">{item.category}</StatusBadge>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div
+                          style={{
+                            minHeight: 90,
+                            borderRadius: 14,
+                            border: "1px dashed var(--border)",
+                            background: "var(--surface-soft)",
+                          }}
+                        />
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+
+          <section style={cardStyle}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 12,
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <div style={{ display: "grid", gap: 6 }}>
+                <p style={{ margin: 0, color: "var(--muted)" }}>Execução</p>
+                <strong>Gere lembretes automáticos a partir desta semana.</strong>
+              </div>
+              <button
+                type="button"
+                onClick={handleGenerateReminders}
+                disabled={generatingReminders}
+                style={buttonStyle}
               >
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-                  <StatusBadge tone="accent">{item.contentType}</StatusBadge>
-                  <StatusBadge tone="warning">{item.category}</StatusBadge>
-                </div>
-                <h3 style={{ marginTop: 0, marginBottom: 8, textTransform: "capitalize" }}>
-                  {item.dayOfWeek} - {item.title}
-                </h3>
-                <p>
-                  <strong>Categoria:</strong> {item.category}
-                </p>
-                <p>
-                  <strong>Formato:</strong> {item.contentType}
-                </p>
-                <p>
-                  <strong>Objetivo:</strong> {item.objective}
-                </p>
-                <p>
-                  <strong>Ideia de origem:</strong>{" "}
-                  {item.sourceIdeaTitle && item.sourceIdeaTitle.trim()
-                    ? item.sourceIdeaTitle
-                    : "Nova sugestao criada no calendario"}
-                </p>
-                <p style={{ marginBottom: 0 }}>
-                  <strong>Notas:</strong> {item.notes}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
+                {generatingReminders ? "Gerando lembretes..." : "Gerar lembretes"}
+              </button>
+            </div>
+            {reminderMessage ? <FeedbackBanner message={reminderMessage} tone="success" /> : null}
+          </section>
+        </>
       ) : null}
     </div>
-    )
   );
 }

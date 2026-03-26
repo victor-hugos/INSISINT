@@ -40,7 +40,8 @@ const fieldStyle: React.CSSProperties = {
   width: "100%",
   borderRadius: 16,
   border: "1px solid var(--border)",
-  background: "rgba(255,255,255,0.8)",
+  background: "var(--surface-strong)",
+  color: "var(--text)",
   padding: "14px 16px",
   outline: "none",
 };
@@ -57,7 +58,7 @@ const primaryButtonStyle: React.CSSProperties = {
   borderRadius: 16,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };
@@ -66,7 +67,7 @@ const secondaryButtonStyle: React.CSSProperties = {
   padding: "15px 18px",
   borderRadius: 16,
   border: "1px solid var(--border)",
-  background: "rgba(255,255,255,0.75)",
+  background: "var(--surface-strong)",
   color: "var(--text)",
   fontWeight: 700,
   cursor: "pointer",
@@ -316,7 +317,7 @@ export function RemindersPanel() {
                   border: "1px solid var(--border)",
                   borderRadius: 18,
                   padding: 18,
-                  background: "rgba(255,255,255,0.65)",
+                  background: "var(--surface-soft)",
                 }}
               >
                 <div

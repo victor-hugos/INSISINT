@@ -27,7 +27,8 @@ const fieldStyle: React.CSSProperties = {
   width: "100%",
   borderRadius: 14,
   border: "1px solid var(--border)",
-  background: "rgba(255,255,255,0.84)",
+  background: "var(--surface-strong)",
+  color: "var(--text)",
   padding: "13px 15px",
   outline: "none",
 };
@@ -37,7 +38,7 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 14,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };
@@ -113,11 +114,11 @@ export default function SignupPage() {
         </button>
 
         {!supabase ? (
-          <p style={{ margin: 0, color: "#8a2f12" }}>
+          <p style={{ margin: 0, color: "var(--danger)" }}>
             Configure NEXT_PUBLIC_SUPABASE_URL e a chave publica do Supabase para usar o cadastro.
           </p>
         ) : null}
-        {error ? <p style={{ margin: 0, color: "#8a2f12" }}>{error}</p> : null}
+        {error ? <p style={{ margin: 0, color: "var(--danger)" }}>{error}</p> : null}
         {message ? <p style={{ margin: 0, color: "var(--muted)" }}>{message}</p> : null}
       </form>
 

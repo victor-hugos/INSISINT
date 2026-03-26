@@ -35,7 +35,7 @@ const leadCardStyle: React.CSSProperties = {
   border: "1px solid var(--border)",
   padding: 16,
   borderRadius: 18,
-  background: "rgba(255,255,255,0.7)",
+  background: "var(--surface-soft)",
   display: "grid",
   gap: 8,
 };
@@ -44,7 +44,7 @@ const buttonStyle: React.CSSProperties = {
   padding: "10px 12px",
   borderRadius: 12,
   border: "1px solid var(--border)",
-  background: "rgba(255,255,255,0.82)",
+  background: "var(--surface-strong)",
   color: "var(--text)",
   fontWeight: 700,
   cursor: "pointer",
@@ -163,7 +163,8 @@ export default function PilotLeadsPage() {
                 borderRadius: 14,
                 border: "1px solid var(--border)",
                 padding: "12px 14px",
-                background: "rgba(255,255,255,0.82)",
+                background: "var(--surface-strong)",
+                color: "var(--text)",
               }}
             />
             <select
@@ -183,7 +184,8 @@ export default function PilotLeadsPage() {
                 borderRadius: 14,
                 border: "1px solid var(--border)",
                 padding: "12px 14px",
-                background: "rgba(255,255,255,0.82)",
+                background: "var(--surface-strong)",
+                color: "var(--text)",
               }}
             >
               <option value="all">Todos os status</option>

@@ -35,7 +35,8 @@ const fieldStyle: React.CSSProperties = {
   width: "100%",
   borderRadius: 16,
   border: "1px solid var(--border)",
-  background: "rgba(255,255,255,0.8)",
+  background: "var(--surface-strong)",
+  color: "var(--text)",
   padding: "14px 16px",
   outline: "none",
 };
@@ -52,7 +53,7 @@ const submitStyle: React.CSSProperties = {
   borderRadius: 16,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };
@@ -255,7 +256,7 @@ export function OnboardingForm() {
         </div>
 
         {error ? (
-          <p style={{ color: "#8a2f12", marginTop: 16 }}>{error}</p>
+          <p style={{ color: "var(--danger)", marginTop: 16 }}>{error}</p>
         ) : null}
       </form>
 
@@ -274,7 +275,7 @@ export function OnboardingForm() {
                 border: "1px solid var(--border)",
                 borderRadius: 18,
                 padding: 16,
-                background: "rgba(255,255,255,0.65)",
+                background: "var(--surface-soft)",
               }}
             >
               <h3 style={{ marginTop: 0 }}>Proximos passos</h3>

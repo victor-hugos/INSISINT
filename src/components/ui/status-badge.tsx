@@ -4,24 +4,24 @@ type Tone = "neutral" | "success" | "warning" | "danger" | "accent";
 
 const toneMap: Record<Tone, React.CSSProperties> = {
   neutral: {
-    background: "rgba(76,43,14,0.08)",
+    background: "rgba(255,255,255,0.04)",
     color: "var(--text)",
-    border: "1px solid rgba(76,43,14,0.1)",
+    border: "1px solid var(--border)",
   },
   success: {
-    background: "rgba(37,98,69,0.12)",
-    color: "#256245",
-    border: "1px solid rgba(37,98,69,0.18)",
+    background: "rgba(34,197,94,0.1)",
+    color: "#86efac",
+    border: "1px solid rgba(34,197,94,0.16)",
   },
   warning: {
-    background: "rgba(140,90,34,0.12)",
-    color: "#8c5a22",
-    border: "1px solid rgba(140,90,34,0.18)",
+    background: "rgba(250,204,21,0.1)",
+    color: "#fde68a",
+    border: "1px solid rgba(250,204,21,0.16)",
   },
   danger: {
-    background: "rgba(138,47,18,0.12)",
-    color: "#8a2f12",
-    border: "1px solid rgba(138,47,18,0.18)",
+    background: "rgba(248,113,113,0.1)",
+    color: "#fda4af",
+    border: "1px solid rgba(248,113,113,0.16)",
   },
   accent: {
     background: "var(--accent-soft)",

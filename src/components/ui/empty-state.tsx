@@ -45,7 +45,7 @@ export function EmptyState({
             padding: "12px 14px",
             borderRadius: 14,
             border: "1px solid var(--border)",
-            background: "rgba(255,255,255,0.8)",
+            background: "var(--surface-strong)",
             fontWeight: 700,
             color: "var(--accent-strong)",
           }}

@@ -41,7 +41,8 @@ const fieldStyle: React.CSSProperties = {
   width: "100%",
   borderRadius: 16,
   border: "1px solid var(--border)",
-  background: "rgba(255,255,255,0.8)",
+  background: "var(--surface-strong)",
+  color: "var(--text)",
   padding: "14px 16px",
   outline: "none",
 };
@@ -58,7 +59,7 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 16,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };
@@ -229,7 +230,7 @@ export function ScriptsPanel() {
           </button>
         </div>
 
-        {error ? <p style={{ color: "#8a2f12", marginTop: 16 }}>{error}</p> : null}
+        {error ? <p style={{ color: "var(--danger)", marginTop: 16 }}>{error}</p> : null}
       </form>
 
       {result ? (

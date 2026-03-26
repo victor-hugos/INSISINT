@@ -28,7 +28,7 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 16,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };
@@ -206,7 +206,7 @@ export function WeeklyPlanPanel() {
                     padding: 16,
                     display: "grid",
                     gap: 8,
-                    background: "rgba(255,255,255,0.65)",
+                    background: "var(--surface-soft)",
                   }}
                 >
                   <label

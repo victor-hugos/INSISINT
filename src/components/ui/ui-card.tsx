@@ -16,7 +16,7 @@ export function UICard({
         display: "grid",
         gap: 14,
         background: "var(--bg-panel)",
-        boxShadow: "var(--shadow-soft)",
+        boxShadow: "var(--shadow-soft), var(--glow)",
         backdropFilter: "blur(10px)",
       }}
     >

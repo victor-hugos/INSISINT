@@ -22,7 +22,8 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 14,
   border: "1px solid var(--border)",
   padding: "12px 14px",
-  background: "rgba(255,255,255,0.88)",
+  background: "var(--surface-strong)",
+  color: "var(--text)",
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -30,14 +31,14 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 14,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };
 
 const secondaryButtonStyle: React.CSSProperties = {
   ...buttonStyle,
-  background: "#e7d7c8",
+  background: "var(--surface-strong)",
   color: "var(--text)",
 };
 
@@ -212,7 +213,7 @@ export function ActiveProfileBar() {
       ) : null}
 
       {!loadingProfile && activeProfileId && !profile ? (
-        <p style={{ margin: 0, color: "#8a2f12" }}>
+        <p style={{ margin: 0, color: "var(--danger)" }}>
           Nao foi possivel carregar esse perfil. Confira o `profileId` ou crie um novo onboarding.
         </p>
       ) : null}

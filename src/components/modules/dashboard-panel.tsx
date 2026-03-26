@@ -34,7 +34,7 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 16,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };
@@ -49,7 +49,7 @@ const metricCardStyle: React.CSSProperties = {
   borderRadius: 18,
   border: "1px solid var(--border)",
   padding: 16,
-  background: "rgba(255,255,255,0.72)",
+  background: "var(--surface-soft)",
 };
 
 const sectionGridStyle: React.CSSProperties = {
@@ -62,7 +62,7 @@ const panelStyle: React.CSSProperties = {
   borderRadius: 20,
   border: "1px solid var(--border)",
   padding: 18,
-  background: "rgba(255,255,255,0.68)",
+  background: "var(--surface-soft)",
 };
 
 function formatDate(value: string) {

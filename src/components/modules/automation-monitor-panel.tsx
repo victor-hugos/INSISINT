@@ -58,14 +58,14 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 16,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };
 
 const secondaryButtonStyle: React.CSSProperties = {
   ...buttonStyle,
-  background: "rgba(255,255,255,0.75)",
+  background: "var(--surface-strong)",
   color: "var(--text)",
   border: "1px solid var(--border)",
 };
@@ -73,7 +73,8 @@ const secondaryButtonStyle: React.CSSProperties = {
 const selectStyle: React.CSSProperties = {
   borderRadius: 16,
   border: "1px solid var(--border)",
-  background: "rgba(255,255,255,0.8)",
+  background: "var(--surface-strong)",
+  color: "var(--text)",
   padding: "12px 14px",
 };
 
@@ -221,7 +222,7 @@ export function AutomationMonitorPanel() {
                       border: "1px solid var(--border)",
                       borderRadius: 18,
                       padding: 16,
-                      background: "rgba(255,255,255,0.65)",
+                      background: "var(--surface-soft)",
                     }}
                   >
                     <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
@@ -258,7 +259,7 @@ export function AutomationMonitorPanel() {
                       border: "1px solid var(--border)",
                       borderRadius: 18,
                       padding: 16,
-                      background: "rgba(255,255,255,0.65)",
+                      background: "var(--surface-soft)",
                     }}
                   >
                     <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>

@@ -16,7 +16,7 @@ const heroStyle: React.CSSProperties = {
   borderRadius: 28,
   border: "1px solid var(--border)",
   background:
-    "linear-gradient(135deg, rgba(255,248,242,0.96), rgba(240,225,208,0.92))",
+    "linear-gradient(145deg, rgba(26,19,42,0.96), rgba(14,11,24,0.98))",
   boxShadow: "var(--shadow)",
 };
 
@@ -28,7 +28,7 @@ const ctaStyle: React.CSSProperties = {
   padding: "14px 18px",
   borderRadius: 16,
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
 };
 

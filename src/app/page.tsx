@@ -11,7 +11,7 @@ export default function Home() {
             borderRadius: 30,
             border: "1px solid var(--border)",
             background:
-              "linear-gradient(140deg, rgba(255,250,244,0.96), rgba(241,224,205,0.94))",
+              "linear-gradient(145deg, rgba(26,19,42,0.96), rgba(14,11,24,0.98))",
             boxShadow: "var(--shadow)",
             display: "grid",
             gap: 18,
@@ -53,7 +53,7 @@ export default function Home() {
                 padding: "15px 20px",
                 borderRadius: 16,
                 background: "var(--accent)",
-                color: "#fff8f2",
+                color: "#f8f5ff",
                 fontWeight: 700,
                 boxShadow: "var(--shadow-soft)",
               }}
@@ -66,7 +66,7 @@ export default function Home() {
                 padding: "15px 20px",
                 borderRadius: 16,
                 border: "1px solid var(--border-strong)",
-                background: "rgba(255,255,255,0.7)",
+                background: "var(--surface-strong)",
                 fontWeight: 700,
               }}
             >
@@ -91,8 +91,8 @@ export default function Home() {
                 style={{
                   padding: 16,
                   borderRadius: 20,
-                  border: "1px solid rgba(76,43,14,0.1)",
-                  background: "rgba(255,255,255,0.62)",
+                  border: "1px solid var(--border)",
+                  background: "var(--surface-soft)",
                   display: "grid",
                   gap: 8,
                 }}
@@ -161,8 +161,8 @@ export default function Home() {
             style={{
               padding: 16,
               borderRadius: 20,
-              background: "rgba(217,111,45,0.08)",
-              border: "1px solid rgba(217,111,45,0.12)",
+              background: "var(--accent-soft)",
+              border: "1px solid var(--border)",
             }}
           >
             <p style={{ margin: 0, color: "var(--muted)" }}>
@@ -212,7 +212,7 @@ export default function Home() {
                 padding: 18,
                 borderRadius: 20,
                 border: "1px solid var(--border)",
-                background: "rgba(255,255,255,0.58)",
+                background: "var(--surface-soft)",
                 display: "grid",
                 gap: 10,
               }}

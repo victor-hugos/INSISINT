@@ -9,6 +9,7 @@ import { SessionBox } from "@/components/auth/session-box";
 import { ActiveProfileBar } from "@/components/profile/active-profile-bar";
 
 const appLinks = [
+  { href: "/profile", label: "Perfil" },
   { href: "/ideas", label: "Ideias" },
   { href: "/calendar", label: "Calendario" },
   { href: "/dashboard", label: "Dashboard" },
@@ -42,10 +43,10 @@ function getLinkStyle(isActive: boolean): React.CSSProperties {
     padding: "12px 14px",
     borderRadius: 16,
     border: "1px solid var(--border)",
-    background: isActive ? "var(--accent)" : "rgba(255,255,255,0.78)",
-    color: isActive ? "#fff8f2" : "var(--text)",
+    background: isActive ? "var(--accent-soft)" : "var(--surface-soft)",
+    color: isActive ? "var(--accent-strong)" : "var(--text)",
     fontWeight: 700,
-    boxShadow: isActive ? "var(--shadow-soft)" : "none",
+    boxShadow: isActive ? "var(--glow)" : "none",
   };
 }
 
@@ -66,7 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             top: 0,
             zIndex: 20,
             borderBottom: "1px solid var(--border)",
-            background: "rgba(252,248,242,0.88)",
+            background: "rgba(12, 10, 19, 0.88)",
             backdropFilter: "blur(14px)",
           }}
         >
@@ -107,7 +108,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     style={{
                       ...getLinkStyle(false),
                       background: "var(--accent)",
-                      color: "#fff8f2",
+                      color: "#f8f5ff",
                     }}
                   >
                     Criar conta
@@ -213,7 +214,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               padding: 14,
               borderRadius: 18,
               border: "1px solid var(--border)",
-              background: "rgba(255,255,255,0.68)",
+              background: "var(--surface-soft)",
               display: "grid",
               gap: 8,
             }}

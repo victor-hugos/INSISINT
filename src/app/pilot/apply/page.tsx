@@ -23,7 +23,8 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
   borderRadius: 16,
   border: "1px solid var(--border)",
-  background: "rgba(255,255,255,0.82)",
+  background: "var(--surface-strong)",
+  color: "var(--text)",
   padding: "14px 16px",
   outline: "none",
 };
@@ -33,7 +34,7 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 16,
   border: "none",
   background: "var(--accent)",
-  color: "#fff8f2",
+  color: "#f8f5ff",
   fontWeight: 700,
   cursor: "pointer",
 };
@@ -161,7 +162,7 @@ export default function PilotApplyPage() {
           {sending ? "Enviando..." : "Enviar aplicacao"}
         </button>
 
-        {error ? <p style={{ margin: 0, color: "#8a2f12" }}>{error}</p> : null}
+        {error ? <p style={{ margin: 0, color: "var(--danger)" }}>{error}</p> : null}
       </form>
     </div>
   );
