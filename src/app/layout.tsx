@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { ProfileProvider } from "@/components/profile/profile-provider";
@@ -20,6 +21,7 @@ export default function RootLayout({
             <AppShell>{children}</AppShell>
           </ProfileProvider>
         </AuthProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
