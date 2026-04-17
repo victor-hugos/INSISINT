@@ -144,7 +144,7 @@ Checklist resumido:
 4. validar `GET /api/health`
 5. testar login, onboarding e fluxo principal
 
-Consulte [DEPLOY_CHECKLIST.md](c:/Users/zello/Desktop/INSTASOCIAL/DEPLOY_CHECKLIST.md) para o roteiro detalhado.
+Consulte `DEPLOY_CHECKLIST.md` na raiz do repositorio para o roteiro detalhado.
 
 ## Testes
 
