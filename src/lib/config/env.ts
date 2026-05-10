@@ -37,11 +37,14 @@ function getOptionalFirstEnv(names: string[]) {
 }
 
 export function getOptionalPublicEnv() {
-  const supabaseUrl = getOptionalEnv("NEXT_PUBLIC_SUPABASE_URL");
-  const supabaseAnonKey = getOptionalFirstEnv([
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY",
-  ]);
+  // Acesso literal obrigatório — Next.js só bake-a NEXT_PUBLIC_ em produção
+  // quando a chave é uma string literal, não uma variável dinâmica.
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || null;
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+    null;
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return null;

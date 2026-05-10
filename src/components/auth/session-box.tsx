@@ -1,110 +1,116 @@
 "use client";
 
 import Link from "next/link";
-
 import { useAuth } from "@/components/auth/auth-provider";
-
-const boxStyle: React.CSSProperties = {
-  display: "grid",
-  gap: 10,
-  padding: 14,
-  borderRadius: 18,
-  border: "1px solid var(--border)",
-  background: "var(--surface-soft)",
-  boxShadow: "var(--shadow-soft)",
-};
-
-const linkStyle: React.CSSProperties = {
-  padding: "11px 13px",
-  borderRadius: 14,
-  border: "1px solid var(--border)",
-  fontWeight: 700,
-  textAlign: "center",
-  background: "var(--surface-strong)",
-};
-
-const buttonStyle: React.CSSProperties = {
-  padding: "10px 12px",
-  borderRadius: 12,
-  border: "none",
-  background: "var(--accent)",
-  color: "#f8f5ff",
-  fontWeight: 700,
-  cursor: "pointer",
-};
 
 export function SessionBox() {
   const { user, loading, signOut } = useAuth();
 
   if (loading) {
     return (
-      <div style={boxStyle}>
-        <div
-          className="skeleton"
-          style={{ height: 14, width: "45%", borderRadius: 999 }}
-        />
-        <div
-          className="skeleton"
-          style={{ height: 18, width: "80%", borderRadius: 999 }}
-        />
-        <div
-          className="skeleton"
-          style={{ height: 42, width: "100%", borderRadius: 14 }}
-        />
+      <div style={{ display: "grid", gap: 8 }}>
+        <div className="skeleton" style={{ height: 32, borderRadius: "var(--radius-md)" }} />
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div style={boxStyle}>
-        <p
-          style={{
-            margin: 0,
-            color: "var(--accent-strong)",
-            fontSize: "0.78rem",
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            fontWeight: 700,
-          }}
-        >
-          Conta
-        </p>
-        <p style={{ margin: 0, color: "var(--muted)" }}>
-          Entre para salvar perfis e separar seus dados por conta.
-        </p>
-        <Link href="/login" style={linkStyle}>
+      <div style={{ display: "grid", gap: 6 }}>
+        <Link href="/login" className="btn btn-secondary" style={{ fontSize: "0.85rem", padding: "9px 14px" }}>
           Entrar
         </Link>
-        <Link href="/signup" style={linkStyle}>
+        <Link href="/signup" className="btn btn-primary" style={{ fontSize: "0.85rem", padding: "9px 14px" }}>
           Criar conta
         </Link>
       </div>
     );
   }
 
+  const initial = (user.email ?? "U")[0].toUpperCase();
+  const emailShort = user.email
+    ? user.email.length > 22
+      ? user.email.slice(0, 20) + "…"
+      : user.email
+    : user.id.slice(0, 12) + "…";
+
   return (
-    <div style={boxStyle}>
-      <div style={{ display: "grid", gap: 4 }}>
-        <p
-          style={{
-            margin: 0,
-            color: "var(--accent-strong)",
-            fontSize: "0.78rem",
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            fontWeight: 700,
-          }}
-        >
-          Sessao ativa
-        </p>
-        <p style={{ margin: 0, fontWeight: 700, wordBreak: "break-word" }}>
-          {user.email ?? user.id}
-        </p>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "8px 10px",
+        borderRadius: "var(--radius-md)",
+        background: "var(--bg-elevated)",
+        border: "1px solid var(--border)",
+      }}
+    >
+      {/* Avatar */}
+      <div
+        style={{
+          width: 30,
+          height: 30,
+          borderRadius: 8,
+          background: "var(--accent-soft)",
+          border: "1px solid rgba(124,58,237,0.25)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontWeight: 800,
+          fontSize: "0.85rem",
+          color: "var(--accent-strong)",
+          flexShrink: 0,
+        }}
+      >
+        {initial}
       </div>
 
-      <button type="button" onClick={() => void signOut()} style={buttonStyle}>
-        Sair
+      {/* Email */}
+      <span
+        style={{
+          flex: 1,
+          fontSize: "0.78rem",
+          color: "var(--muted)",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {emailShort}
+      </span>
+
+      {/* Botão sair */}
+      <button
+        type="button"
+        onClick={() => void signOut()}
+        title="Sair"
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: "var(--radius-sm)",
+          border: "1px solid var(--border)",
+          background: "transparent",
+          color: "var(--subtle)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          transition: "all 140ms",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background = "var(--bg-hover)";
+          (e.currentTarget as HTMLButtonElement).style.color = "var(--danger)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+          (e.currentTarget as HTMLButtonElement).style.color = "var(--subtle)";
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path d="M10 8H3M6 5l-3 3 3 3"/>
+          <path d="M10 3h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3"/>
+        </svg>
       </button>
     </div>
   );

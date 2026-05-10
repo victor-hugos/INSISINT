@@ -7,75 +7,129 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { FeedbackBanner } from "@/components/ui/feedback-banner";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getErrorMessage } from "@/lib/utils/get-error-message";
-import {
-  fetchDashboard,
-  fetchReminderProgress,
-} from "@/lib/services/dashboard-service";
-import { UICard } from "@/components/ui/ui-card";
+import { fetchDashboard, fetchReminderProgress } from "@/lib/services/dashboard-service";
 import type { DashboardData, ProgressData } from "@/types/dashboard";
-
-const shellStyle: React.CSSProperties = {
-  maxWidth: 1200,
-  margin: "0 auto",
-  display: "grid",
-  gap: 24,
-};
-
-const cardStyle: React.CSSProperties = {
-  padding: 24,
-  borderRadius: 24,
-  border: "1px solid var(--border)",
-  background: "var(--bg-elevated)",
-  boxShadow: "var(--shadow)",
-};
-
-const buttonStyle: React.CSSProperties = {
-  padding: "15px 18px",
-  borderRadius: 16,
-  border: "none",
-  background: "var(--accent)",
-  color: "#f8f5ff",
-  fontWeight: 700,
-  cursor: "pointer",
-};
-
-const metricGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-  gap: 12,
-};
-
-const metricCardStyle: React.CSSProperties = {
-  borderRadius: 18,
-  border: "1px solid var(--border)",
-  padding: 16,
-  background: "var(--surface-soft)",
-};
-
-const sectionGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-  gap: 18,
-};
-
-const panelStyle: React.CSSProperties = {
-  borderRadius: 20,
-  border: "1px solid var(--border)",
-  padding: 18,
-  background: "var(--surface-soft)",
-};
 
 function formatDate(value: string) {
   const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(date);
+}
 
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
+function MetricCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+  return (
+    <div
+      style={{
+        padding: "16px 18px",
+        borderRadius: "var(--radius-lg)",
+        border: "1px solid var(--border)",
+        background: "var(--bg-elevated)",
+        display: "grid",
+        gap: 4,
+      }}
+    >
+      <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</p>
+      <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1 }}>{value}</p>
+      {sub && <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--subtle)" }}>{sub}</p>}
+    </div>
+  );
+}
 
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
+function WeekProgress({ progress }: { progress: ProgressData }) {
+  const pct = Math.min(progress.percentage, 100);
+  const color = pct >= 80 ? "var(--success)" : pct >= 40 ? "var(--warning)" : "var(--accent)";
+
+  return (
+    <div
+      style={{
+        padding: "20px 24px",
+        borderRadius: "var(--radius-xl)",
+        border: "1px solid var(--border-md)",
+        background: "var(--bg-card)",
+        display: "grid",
+        gap: 14,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
+        <div>
+          <p style={{ margin: "0 0 2px", fontWeight: 700, fontSize: "1rem" }}>Execução da semana</p>
+          <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--muted)" }}>Semana {progress.weekKey}</p>
+        </div>
+        <span
+          style={{
+            fontSize: "2rem",
+            fontWeight: 800,
+            letterSpacing: "-0.04em",
+            color,
+            lineHeight: 1,
+          }}
+        >
+          {pct}%
+        </span>
+      </div>
+
+      {/* Barra de progresso */}
+      <div style={{ height: 8, borderRadius: 99, background: "var(--border-md)", overflow: "hidden" }}>
+        <div
+          style={{
+            height: "100%",
+            width: `${pct}%`,
+            borderRadius: 99,
+            background: color,
+            transition: "width 600ms cubic-bezier(0.4, 0, 0.2, 1)",
+            boxShadow: `0 0 10px ${color}55`,
+          }}
+        />
+      </div>
+
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+        <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>
+          <strong style={{ color: "var(--text)" }}>{progress.completed}</strong> concluídos
+        </span>
+        <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>
+          <strong style={{ color: "var(--text)" }}>{progress.total - progress.completed}</strong> pendentes
+        </span>
+        <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>
+          Total: <strong style={{ color: "var(--text)" }}>{progress.total}</strong>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function QuickActions() {
+  const links = [
+    { href: "/ideas", label: "Gerar ideias", icon: "◈" },
+    { href: "/weekly-plan", label: "Plano semanal", icon: "◉" },
+    { href: "/calendar", label: "Calendário", icon: "◆" },
+    { href: "/reminders", label: "Lembretes", icon: "◇" },
+  ];
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8 }}>
+      {links.map((l) => (
+        <Link
+          key={l.href}
+          href={l.href}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 8,
+            padding: "16px 12px",
+            borderRadius: "var(--radius-lg)",
+            border: "1px solid var(--border)",
+            background: "var(--bg-elevated)",
+            transition: "border-color 140ms, background 140ms",
+            textAlign: "center",
+          }}
+        >
+          <span style={{ fontSize: "1.2rem", color: "var(--accent-strong)" }}>{l.icon}</span>
+          <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--muted)" }}>{l.label}</span>
+        </Link>
+      ))}
+    </div>
+  );
 }
 
 export function DashboardPanel() {
@@ -90,7 +144,6 @@ export function DashboardPanel() {
       setError("Ative um perfil antes de carregar o dashboard.");
       return;
     }
-
     setLoading(true);
     setError(null);
     setData(null);
@@ -101,7 +154,6 @@ export function DashboardPanel() {
         fetchDashboard(activeProfileId),
         fetchReminderProgress(activeProfileId),
       ]);
-
       setProgress(progressData);
       setData(responseData);
     } catch (loadError) {
@@ -112,387 +164,261 @@ export function DashboardPanel() {
   }, [activeProfileId, profile]);
 
   useEffect(() => {
-    if (activeProfileId && profile) {
-      void loadDashboard();
-      return;
-    }
-
-    setData(null);
-    setProgress(null);
-    setError(null);
+    if (activeProfileId && profile) { void loadDashboard(); return; }
+    setData(null); setProgress(null); setError(null);
   }, [activeProfileId, loadDashboard, profile]);
 
-  const metrics = data
-    ? [
-        { label: "Ideias", value: data.ideas.length },
-        { label: "Roteiros", value: data.scripts.length },
-        { label: "Calendario", value: data.calendar.length },
-        { label: "Lembretes", value: data.reminders.length },
-      ]
-    : [];
-
-  const approvedIdeasCount = data?.ideasSummary
-    ? data.ideasSummary.filter((item) => item.status === "approved").length
-    : 0;
-
-  const sentAutomationCount = data?.automation
-    ? data.automation.filter((item) => item.status === "sent").length
-    : 0;
-
-  return (
-    !profile ? (
+  if (!profile) {
+    return (
       <EmptyState
         title="Nenhum perfil ativo"
-        description="Ative um perfil para ver o dashboard consolidado da operacao."
+        description="Configure seu perfil para ver o dashboard da operação."
         ctaLabel="Ir para onboarding"
         ctaHref="/onboarding"
       />
-    ) : (
-    <div style={shellStyle}>
+    );
+  }
 
-      <section style={cardStyle}>
+  const approvedIdeas = data?.ideasSummary?.filter((i) => i.status === "approved").length ?? 0;
+  const completedReminders = data?.reminders.filter((r) => r.status === "completed").length ?? 0;
+  const totalReminders = data?.reminders.length ?? 0;
+  const sentAutomations = data?.automation?.filter((a) => a.status === "sent").length ?? 0;
+
+  return (
+    <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gap: 20 }}>
+
+      {/* ── Hero do perfil ── */}
+      <div
+        style={{
+          padding: "20px 24px",
+          borderRadius: "var(--radius-xl)",
+          border: "1px solid var(--border-md)",
+          background: "var(--bg-card)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 14,
+        }}
+      >
+        <div style={{ display: "grid", gap: 2 }}>
+          <p style={{ margin: 0, fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--accent-strong)" }}>
+            Perfil ativo
+          </p>
+          <h1 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 800, letterSpacing: "-0.02em" }}>
+            {profile.niche ?? "Meu perfil"}
+          </h1>
+          <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--muted)" }}>
+            {profile.goal ?? "—"} · {profile.posting_frequency ?? "—"}
+          </p>
+        </div>
+        <button
+          onClick={loadDashboard}
+          disabled={loading}
+          className="btn btn-secondary"
+          style={{ fontSize: "0.85rem", padding: "9px 16px" }}
+        >
+          {loading ? "Carregando…" : "↻ Atualizar"}
+        </button>
+      </div>
+
+      {error && <FeedbackBanner message={error} tone="error" />}
+
+      {/* ── Loading ── */}
+      {loading && (
+        <div style={{ display: "grid", gap: 14 }}>
+          <div className="skeleton" style={{ height: 120, borderRadius: "var(--radius-xl)" }} />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 10 }}>
+            {[1,2,3,4].map((n) => <div key={n} className="skeleton" style={{ height: 88, borderRadius: "var(--radius-lg)" }} />)}
+          </div>
+          <div className="skeleton" style={{ height: 200, borderRadius: "var(--radius-xl)" }} />
+        </div>
+      )}
+
+      {data && (
+        <>
+          {/* ── Progresso semanal ── */}
+          {progress && <WeekProgress progress={progress} />}
+
+          {/* ── Métricas ── */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 10 }}>
+            <MetricCard label="Ideias" value={data.ideas.length} />
+            <MetricCard label="Aprovadas" value={approvedIdeas} />
+            <MetricCard label="Roteiros" value={data.scripts.length} />
+            <MetricCard
+              label="Lembretes"
+              value={`${completedReminders}/${totalReminders}`}
+              sub={totalReminders > 0 ? `${Math.round((completedReminders / totalReminders) * 100)}% concluídos` : undefined}
+            />
+            <MetricCard label="Calendário" value={data.calendar.length} sub="itens" />
+            <MetricCard label="Automações" value={sentAutomations} sub="enviadas" />
+          </div>
+
+          {/* ── Ações rápidas ── */}
+          <div
+            style={{
+              padding: "20px 24px",
+              borderRadius: "var(--radius-xl)",
+              border: "1px solid var(--border-md)",
+              background: "var(--bg-card)",
+              display: "grid",
+              gap: 14,
+            }}
+          >
+            <p style={{ margin: 0, fontWeight: 700, fontSize: "0.9rem" }}>Ações rápidas</p>
+            <QuickActions />
+          </div>
+
+          {/* ── Últimas ideias + roteiros ── */}
+          <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
+
+            <div
+              style={{
+                padding: "20px 22px",
+                borderRadius: "var(--radius-xl)",
+                border: "1px solid var(--border-md)",
+                background: "var(--bg-card)",
+                display: "grid",
+                gap: 12,
+                alignContent: "start",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: "0.9rem" }}>Últimas ideias</p>
+                <Link href="/ideas" style={{ fontSize: "0.78rem", color: "var(--accent-strong)" }}>Ver todas →</Link>
+              </div>
+              {data.ideas.length > 0 ? (
+                <div style={{ display: "grid", gap: 8 }}>
+                  {data.ideas.slice(0, 3).map((idea) => (
+                    <div
+                      key={idea.id}
+                      style={{
+                        padding: "12px 14px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--border)",
+                        background: "var(--bg-elevated)",
+                      }}
+                    >
+                      <p style={{ margin: "0 0 4px", fontWeight: 700, fontSize: "0.88rem", lineHeight: 1.3 }}>{idea.title}</p>
+                      <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--muted)" }}>{idea.hook}</p>
+                      <div style={{ marginTop: 6 }}>
+                        <span className="badge badge-gray">{idea.category}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--subtle)" }}>Nenhuma ideia gerada ainda.</p>
+              )}
+            </div>
+
+            <div
+              style={{
+                padding: "20px 22px",
+                borderRadius: "var(--radius-xl)",
+                border: "1px solid var(--border-md)",
+                background: "var(--bg-card)",
+                display: "grid",
+                gap: 12,
+                alignContent: "start",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: "0.9rem" }}>Próximos lembretes</p>
+                <Link href="/reminders" style={{ fontSize: "0.78rem", color: "var(--accent-strong)" }}>Ver todos →</Link>
+              </div>
+              {data.reminders.length > 0 ? (
+                <div style={{ display: "grid", gap: 8 }}>
+                  {data.reminders.slice(0, 4).map((reminder) => (
+                    <div
+                      key={reminder.id}
+                      style={{
+                        padding: "12px 14px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--border)",
+                        background: "var(--bg-elevated)",
+                        display: "flex",
+                        gap: 10,
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: reminder.status === "completed" ? "var(--success)" : "var(--warning)",
+                          marginTop: 5,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ margin: "0 0 2px", fontWeight: 600, fontSize: "0.85rem", lineHeight: 1.3 }}>{reminder.title}</p>
+                        <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--subtle)" }}>{formatDate(reminder.scheduled_for)}</p>
+                      </div>
+                      <StatusBadge tone={reminder.status === "completed" ? "success" : "warning"}>
+                        {reminder.status === "completed" ? "Feito" : "Pendente"}
+                      </StatusBadge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--subtle)" }}>Nenhum lembrete configurado.</p>
+              )}
+            </div>
+
+          </div>
+
+          {/* ── Diagnóstico ── */}
+          {data.diagnosis?.result && (
+            <div
+              style={{
+                padding: "20px 24px",
+                borderRadius: "var(--radius-xl)",
+                border: "1px solid var(--border-md)",
+                background: "var(--bg-card)",
+                display: "grid",
+                gap: 12,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: "0.9rem" }}>Diagnóstico do perfil</p>
+                <Link href="/onboarding" style={{ fontSize: "0.78rem", color: "var(--accent-strong)" }}>Atualizar →</Link>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.88rem", color: "var(--muted)", lineHeight: 1.6 }}>
+                {data.diagnosis.result.summary}
+              </p>
+              {data.diagnosis.result.pillars && data.diagnosis.result.pillars.length > 0 && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {data.diagnosis.result.pillars.map((pillar) => (
+                    <span key={pillar} className="badge badge-purple">{pillar}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Estado vazio (sem dados, sem loading, sem erro) */}
+      {!loading && !data && !error && (
         <div
           style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            gap: 12,
-            alignItems: "center",
-          }}
-        >
-          <div style={{ display: "grid", gap: 6 }}>
-            <p style={{ margin: 0, color: "var(--muted)" }}>Sincronizacao</p>
-            <strong>Atualize o painel para refletir a operacao mais recente.</strong>
-          </div>
-          <button onClick={loadDashboard} disabled={loading} style={buttonStyle}>
-            {loading ? "Carregando..." : "Atualizar dashboard"}
-          </button>
-        </div>
-        {error ? <FeedbackBanner message={error} tone="error" /> : null}
-      </section>
-
-      {loading ? (
-        <section
-          style={{
+            padding: "40px 24px",
+            borderRadius: "var(--radius-xl)",
+            border: "1px dashed var(--border-md)",
+            textAlign: "center",
             display: "grid",
-            gap: 18,
+            gap: 12,
           }}
         >
-          <div className="skeleton" style={{ height: 180, borderRadius: 24 }} />
-          <div className="skeleton" style={{ height: 260, borderRadius: 24 }} />
-          <div className="skeleton" style={{ height: 320, borderRadius: 24 }} />
-        </section>
-      ) : null}
+          <p style={{ margin: 0, fontWeight: 700 }}>Carregue o dashboard</p>
+          <p style={{ margin: 0, fontSize: "0.88rem", color: "var(--muted)" }}>
+            Clique em "Atualizar" para buscar os dados mais recentes da sua operação.
+          </p>
+        </div>
+      )}
 
-      {data ? (
-        <>
-          <UICard title="Proxima acao recomendada">
-            <p style={{ margin: 0 }}>
-              Se voce ainda nao selecionou as ideias da semana, va para o plano
-              semanal e escolha o que realmente quer executar agora.
-            </p>
-            <Link href="/weekly-plan">Ir para plano semanal</Link>
-          </UICard>
-
-          {progress ? (
-            <UICard title="Progresso da semana">
-              <div style={metricGridStyle}>
-                <article style={metricCardStyle}>
-                  <p style={{ margin: 0, color: "var(--muted)" }}>Semana</p>
-                  <strong>{progress.weekKey}</strong>
-                </article>
-                <article style={metricCardStyle}>
-                  <p style={{ margin: 0, color: "var(--muted)" }}>Total</p>
-                  <strong>{progress.total}</strong>
-                </article>
-                <article style={metricCardStyle}>
-                  <p style={{ margin: 0, color: "var(--muted)" }}>Concluidos</p>
-                  <strong>{progress.completed}</strong>
-                </article>
-                <article style={metricCardStyle}>
-                  <p style={{ margin: 0, color: "var(--muted)" }}>Execucao</p>
-                  <strong>{progress.percentage}%</strong>
-                </article>
-              </div>
-            </UICard>
-          ) : null}
-
-          <section style={cardStyle}>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "space-between",
-                gap: 16,
-                marginBottom: 18,
-              }}
-            >
-              <div>
-                <p
-                  style={{
-                    margin: 0,
-                    color: "var(--accent-strong)",
-                    fontWeight: 700,
-                  }}
-                >
-                  Visao geral
-                </p>
-                <h2 style={{ margin: "8px 0 0" }}>
-                  {data.profile?.niche || "Perfil nao encontrado"}
-                </h2>
-              </div>
-              <div style={{ color: "var(--muted)" }}>
-                <p style={{ margin: 0 }}>
-                  <strong>Objetivo:</strong> {data.profile?.goal || "-"}
-                </p>
-                <p style={{ margin: "6px 0 0" }}>
-                  <strong>Frequencia:</strong>{" "}
-                  {data.profile?.posting_frequency || "-"}
-                </p>
-              </div>
-            </div>
-
-            <div style={metricGridStyle}>
-              {metrics.map((metric) => (
-                <article key={metric.label} style={metricCardStyle}>
-                  <p style={{ margin: 0, color: "var(--muted)" }}>
-                    {metric.label}
-                  </p>
-                  <strong style={{ fontSize: "1.9rem" }}>{metric.value}</strong>
-                </article>
-              ))}
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                flexWrap: "wrap",
-                marginTop: 18,
-              }}
-            >
-              <StatusBadge tone="success">{approvedIdeasCount} ideias aprovadas</StatusBadge>
-              <StatusBadge tone="accent">{sentAutomationCount} automacoes enviadas</StatusBadge>
-            </div>
-          </section>
-
-          <div style={sectionGridStyle}>
-            <UICard title="Resumo rapido">
-              <p>
-                <strong>Ideias aprovadas:</strong>{" "}
-                {data.ideasSummary
-                  ? data.ideasSummary.filter((item) => item.status === "approved").length
-                  : 0}
-              </p>
-              <p>
-                <strong>Execucao dos lembretes:</strong>{" "}
-                {data.reminders.length > 0
-                  ? `${Math.round(
-                      (data.reminders.filter((item) => item.status === "completed")
-                        .length /
-                        data.reminders.length) *
-                        100
-                    )}%`
-                  : "0%"}
-              </p>
-              <p style={{ marginBottom: 0 }}>
-                <strong>Automacoes enviadas:</strong>{" "}
-                {data.automation
-                  ? data.automation.filter((item) => item.status === "sent").length
-                  : 0}
-              </p>
-            </UICard>
-
-            <UICard title="Resumo de automacoes">
-              {data.automation && data.automation.length > 0 ? (
-                <div style={{ display: "grid", gap: 8 }}>
-                  <p>
-                    <strong>Pendentes:</strong>{" "}
-                    {data.automation.filter((item) => item.status === "pending").length}
-                  </p>
-                  <p>
-                    <strong>Enviadas:</strong>{" "}
-                    {data.automation.filter((item) => item.status === "sent").length}
-                  </p>
-                  <p style={{ marginBottom: 0 }}>
-                    <strong>Falhadas:</strong>{" "}
-                    {data.automation.filter((item) => item.status === "failed").length}
-                  </p>
-                </div>
-              ) : (
-                <p>Nenhuma automacao processada ainda.</p>
-              )}
-            </UICard>
-
-            <section style={panelStyle}>
-              <h3 style={{ marginTop: 0 }}>Perfil</h3>
-              {data.profile ? (
-                <div style={{ display: "grid", gap: 8 }}>
-                  <p>
-                    <strong>Nicho:</strong> {data.profile.niche}
-                  </p>
-                  <p>
-                    <strong>Publico:</strong> {data.profile.target_audience}
-                  </p>
-                  <p>
-                    <strong>Tom:</strong> {data.profile.tone}
-                  </p>
-                  <p>
-                    <strong>Produtos:</strong>{" "}
-                    {data.profile.products_services || "-"}
-                  </p>
-                  <p style={{ marginBottom: 0 }}>
-                    <strong>Concorrentes:</strong>{" "}
-                    {data.profile.competitors || "-"}
-                  </p>
-                </div>
-              ) : (
-                <p>Perfil nao encontrado.</p>
-              )}
-            </section>
-
-            <section style={panelStyle}>
-              <h3 style={{ marginTop: 0 }}>Ultimo diagnostico</h3>
-              {data.diagnosis?.result ? (
-                <div style={{ display: "grid", gap: 12 }}>
-                  <p style={{ margin: 0 }}>
-                    {data.diagnosis.result.summary || "Sem resumo."}
-                  </p>
-                  <div>
-                    <strong>Pilares</strong>
-                    <ul style={{ marginBottom: 0 }}>
-                      {(data.diagnosis.result.pillars || []).map((pillar) => (
-                        <li key={pillar}>{pillar}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              ) : (
-                <p>Nenhum diagnostico encontrado.</p>
-              )}
-            </section>
-          </div>
-
-          <div style={sectionGridStyle}>
-            <section style={panelStyle}>
-              <h3 style={{ marginTop: 0 }}>Ultimas ideias</h3>
-              {data.ideas.length > 0 ? (
-                <div style={{ display: "grid", gap: 12 }}>
-                  {data.ideas.map((idea) => (
-                    <article key={idea.id} style={metricCardStyle}>
-                      <h4 style={{ marginTop: 0, marginBottom: 8 }}>{idea.title}</h4>
-                      <p>
-                        <strong>Categoria:</strong> {idea.category}
-                      </p>
-                      <p>
-                        <strong>Hook:</strong> {idea.hook}
-                      </p>
-                      <p style={{ marginBottom: 0 }}>{idea.description}</p>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <p>Nenhuma ideia encontrada.</p>
-              )}
-            </section>
-
-            <section style={panelStyle}>
-              <h3 style={{ marginTop: 0 }}>Ultimos roteiros</h3>
-              {data.scripts.length > 0 ? (
-                <div style={{ display: "grid", gap: 12 }}>
-                  {data.scripts.map((script) => (
-                    <article key={script.id} style={metricCardStyle}>
-                      <h4 style={{ marginTop: 0, marginBottom: 8 }}>
-                        {script.idea_title}
-                      </h4>
-                      <p>
-                        <strong>Categoria:</strong> {script.category}
-                      </p>
-                      <p>
-                        <strong>Hook:</strong> {script.hook}
-                      </p>
-                      <p style={{ marginBottom: 0 }}>
-                        <strong>CTA:</strong> {script.cta}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <p>Nenhum roteiro encontrado.</p>
-              )}
-            </section>
-          </div>
-
-          <div style={sectionGridStyle}>
-            <section style={panelStyle}>
-              <h3 style={{ marginTop: 0 }}>Calendario</h3>
-              {data.calendar.length > 0 ? (
-                <div style={{ display: "grid", gap: 12 }}>
-                  {data.calendar.map((item) => (
-                    <article key={item.id} style={metricCardStyle}>
-                      <StatusBadge tone="accent">{item.content_type}</StatusBadge>
-                      <h4 style={{ marginTop: 0, marginBottom: 8 }}>
-                        {item.day_of_week} - {item.title}
-                      </h4>
-                      <p>
-                        <strong>Formato:</strong> {item.content_type}
-                      </p>
-                      <p>
-                        <strong>Ideia de origem:</strong>{" "}
-                        {item.source_idea_title || "Sem ideia associada"}
-                      </p>
-                      <p style={{ marginBottom: 0 }}>
-                        <strong>Objetivo:</strong> {item.objective}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <p>Nenhum item no calendario.</p>
-              )}
-            </section>
-
-            <section style={panelStyle}>
-              <h3 style={{ marginTop: 0 }}>Proximos lembretes</h3>
-              {data.reminders.length > 0 ? (
-                <div style={{ display: "grid", gap: 12 }}>
-                  {data.reminders.map((reminder) => (
-                    <article key={reminder.id} style={metricCardStyle}>
-                      <StatusBadge
-                        tone={
-                          reminder.status === "completed" ? "success" : "warning"
-                        }
-                      >
-                        {reminder.status}
-                      </StatusBadge>
-                      <h4 style={{ marginTop: 0, marginBottom: 8 }}>
-                        {reminder.title}
-                      </h4>
-                      <p>
-                        <strong>Tipo:</strong> {reminder.reminder_type}
-                      </p>
-                      <p>
-                        <strong>Quando:</strong>{" "}
-                        {formatDate(reminder.scheduled_for)}
-                      </p>
-                      <p>
-                        <strong>Origem:</strong>{" "}
-                        {reminder.calendar_item_id ? "Calendario" : "Manual"}
-                      </p>
-                      <p style={{ marginBottom: 0 }}>
-                        <strong>Status:</strong> {reminder.status}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <p>Nenhum lembrete encontrado.</p>
-              )}
-            </section>
-          </div>
-        </>
-      ) : null}
     </div>
-    )
   );
 }

@@ -3,38 +3,46 @@ import type { ReactNode } from "react";
 export function UICard({
   title,
   children,
+  noPadding = false,
 }: {
   title?: string;
   children: ReactNode;
+  noPadding?: boolean;
 }) {
   return (
     <section
       style={{
         border: "1px solid var(--border)",
-        borderRadius: 24,
-        padding: 22,
+        borderRadius: "var(--radius-lg)",
+        padding: noPadding ? 0 : 20,
         display: "grid",
-        gap: 14,
-        background: "var(--bg-panel)",
-        boxShadow: "var(--shadow-soft), var(--glow)",
-        backdropFilter: "blur(10px)",
+        gap: 16,
+        background: "var(--bg-card)",
+        boxShadow: "var(--shadow-sm)",
+        overflow: noPadding ? "hidden" : undefined,
       }}
     >
       {title ? (
-        <div style={{ display: "grid", gap: 6 }}>
-          <p
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingBottom: 12,
+            borderBottom: "1px solid var(--border)",
+          }}
+        >
+          <h2
             style={{
               margin: 0,
-              color: "var(--accent-strong)",
-              fontSize: "0.76rem",
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
+              fontSize: "0.9rem",
               fontWeight: 700,
+              color: "var(--text)",
+              letterSpacing: "-0.01em",
             }}
           >
-            Painel
-          </p>
-          <h2 style={{ margin: 0 }}>{title}</h2>
+            {title}
+          </h2>
         </div>
       ) : null}
       {children}
