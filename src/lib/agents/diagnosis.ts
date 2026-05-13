@@ -1,4 +1,4 @@
-import { getOpenAIClient } from "@/lib/ai/openai";
+import { getOpenAIClient, AI_MODEL } from "@/lib/ai/openai";
 import {
   diagnosisResultSchema,
   type DiagnosisResult,
@@ -52,12 +52,13 @@ Regras:
 - summary: um resumo objetivo e pratico
 `.trim();
 
-  const response = await openai.responses.create({
-    model: "gpt-5.4",
-    input: prompt,
+  const response = await openai.chat.completions.create({
+    model: AI_MODEL,
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.7,
   });
 
-  const parsed = JSON.parse(extractJson(response.output_text));
+  const parsed = JSON.parse(extractJson(response.choices[0].message.content ?? ""));
 
   return diagnosisResultSchema.parse(parsed);
 }

@@ -11,7 +11,7 @@ export async function GET() {
     checks: {
       supabasePublicEnv: Boolean(publicEnv),
       supabaseServiceRole: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
-      openai: Boolean(process.env.OPENAI_API_KEY),
+      groq: Boolean(process.env.GROQ_API_KEY),
       instagramWebhook: Boolean(process.env.INSTAGRAM_WEBHOOK_VERIFY_TOKEN),
       instagramAccessToken: Boolean(process.env.INSTAGRAM_ACCESS_TOKEN),
       adminEmailsConfigured: getAdminEmails().length > 0,

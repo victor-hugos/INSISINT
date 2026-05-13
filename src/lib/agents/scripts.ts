@@ -1,4 +1,4 @@
-import { getOpenAIClient } from "@/lib/ai/openai";
+import { getOpenAIClient, AI_MODEL } from "@/lib/ai/openai";
 import { scriptResultSchema, type ScriptInput, type ScriptResult } from "@/types/scripts";
 
 function extractJson(raw: string) {
@@ -53,12 +53,13 @@ Regras:
 - caption deve ser natural e publicavel
 `.trim();
 
-  const response = await openai.responses.create({
-    model: "gpt-5.4",
-    input: prompt,
+  const response = await openai.chat.completions.create({
+    model: AI_MODEL,
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.7,
   });
 
-  const parsed = JSON.parse(extractJson(response.output_text));
+  const parsed = JSON.parse(extractJson(response.choices[0].message.content ?? ""));
 
   return scriptResultSchema.parse(parsed);
 }

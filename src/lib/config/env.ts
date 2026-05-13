@@ -72,7 +72,7 @@ export function getServerEnv() {
   return {
     ...getPublicEnv(),
     supabaseServiceRoleKey: getEnv("SUPABASE_SERVICE_ROLE_KEY"),
-    openaiApiKey: getEnv("OPENAI_API_KEY"),
+    groqApiKey: getEnv("GROQ_API_KEY"),
   };
 }
 
