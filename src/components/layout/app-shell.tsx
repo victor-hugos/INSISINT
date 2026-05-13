@@ -146,7 +146,7 @@ function SidebarContent({ pathname, onNav }: { pathname: string; onNav?: () => v
         <Link href="/" className="sidebar-logo" onClick={onNav}>
           <div className="sidebar-logo-icon">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1L14 8L8 15L2 8L8 1Z" fill="white" opacity="0.9"/>
+              <path d="M8 1L14 8L8 15L2 8L8 1Z" fill="var(--accent-strong)"/>
             </svg>
           </div>
           <span>INSISINT</span>
@@ -251,7 +251,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Link href="/dashboard" className="sidebar-logo" style={{ textDecoration: "none" }}>
           <div className="sidebar-logo-icon">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1L14 8L8 15L2 8L8 1Z" fill="white" opacity="0.9"/>
+              <path d="M8 1L14 8L8 15L2 8L8 1Z" fill="var(--accent-strong)"/>
             </svg>
           </div>
           <span style={{ fontSize: "0.95rem" }}>INSISINT</span>

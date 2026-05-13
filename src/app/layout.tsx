@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { ProfileProvider } from "@/components/profile/profile-provider";
@@ -11,6 +11,13 @@ const inter = Inter({
   display: "swap",
 });
 
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  display: "swap",
+  weight: ["600", "700", "800"],
+});
+
 export const metadata: Metadata = {
   title: "INSISINT — Copiloto de Conteúdo com IA",
   description: "Transforme ideias dispersas em calendário semanal executável. Para criadores, especialistas e negócios digitais.",
@@ -20,7 +27,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={inter.variable}>
+    <html lang="pt-BR" className={`${inter.variable} ${jakarta.variable}`}>
       <body>
         <AuthProvider>
           <ProfileProvider>
